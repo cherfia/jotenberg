@@ -1,0 +1,25 @@
+plugins {
+    id 'java-library'
+}
+
+group 'dev.gotenberg'
+version '1.0'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.apache.httpcomponents:httpclient:4.5.13'
+    implementation 'org.apache.httpcomponents:httpmime:4.5.13'
+    implementation 'commons-io:commons-io:2.11.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
+}
+
+task fatJar(type: Jar) {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    archiveBaseName = "${rootProject.name}"
+    from { configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
