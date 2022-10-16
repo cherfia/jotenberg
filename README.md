@@ -1,5 +1,7 @@
 # Jotenberg
 
+[![build](https://github.com/cherfia/jotenberg/actions/workflows/build.yml/badge.svg)](https://github.com/cherfia/jotenberg/actions/workflows/build.yml)
+
 A Java library that interacts with [Gotenberg](https://gotenberg.dev/)'s different modules to convert a variety of document formats to PDF files.
 
 ## Prerequisites
