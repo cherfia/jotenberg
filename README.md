@@ -8,11 +8,13 @@ A Java library that interacts with [Gotenberg](https://gotenberg.dev/)'s differe
 
 Before attempting to use `Jotenberg`, be sure you install [Docker](https://www.docker.com/) if you have not already done so.
 
-After that, you can start a default Docker container of [Gotenberg](https://gotenberg.dev/) as follows:
+Once the docker Daemon is up and running, you can start a default Docker container of [Gotenberg](https://gotenberg.dev/) as follows:
 
 ```bash
 docker run --rm -p 8090:8090 gotenberg/gotenberg:7 gotenberg --api-port=8090
 ```
+
+After that, you need to download the latest `Jotenberg` JAR library from the GitHub [Releases](https://github.com/cherfia/jotenberg/releases) page and add it to your Java project `classpath`.
 
 ## Get Started
 
@@ -139,3 +141,4 @@ public class Main {
     }
 }
 ```
+
