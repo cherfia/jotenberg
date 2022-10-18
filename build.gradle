@@ -1,14 +1,12 @@
 plugins {
     id 'java-library'
     id "groovy"
+    id "com.jfrog.artifactory" version "4.29.1"
+    id 'maven-publish'
 }
 
 group 'dev.inaka'
 version '1.0'
-
-repositories {
-    mavenCentral()
-}
 
 dependencies {
     implementation 'org.apache.httpcomponents:httpclient:4.5.13'
@@ -29,4 +27,48 @@ task fatJar(type: Jar) {
     archiveBaseName = "${rootProject.name}"
     from { configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = 'div.inaka.jotenberg'
+            artifactId = 'jotenberg'
+            version = '1.0'
+            from components.java
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        url "https://inaka.jfrog.io/artifactory/inaka-gradle-release/"
+    }
+}
+
+artifactory {
+    contextUrl = "${artifactory_contextUrl}"
+    publish {
+        repository {
+            repoKey = 'inaka-gradle-release-local'
+            username = "${artifactory_user}"
+            password = "${artifactory_password}"
+            maven = true
+        }
+        defaults {
+            publications('mavenJava')
+            publishConfigs('archives', 'published')
+            properties = ['qa.level': 'basic', 'q.os': 'win32, deb, osx']
+        }
+    }
+    resolve {
+        repository {
+            repoKey = 'inaka-gradle-release'
+            username = "${artifactory_user}"
+            password = "${artifactory_password}"
+            maven = true
+
+        }
+    }
 }
