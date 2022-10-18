@@ -16,7 +16,7 @@ public class CommonUtils {
     private CommonUtils() {
     }
 
-    public static boolean isValid(String url) {
+    public static boolean isValidURL(String url) {
         try {
             new URL(url).toURI();
             return true;
@@ -25,32 +25,27 @@ public class CommonUtils {
         }
     }
 
-    public static boolean isIndexFile(File file) {
+    public static boolean isIndex(File file) {
         String filename = FilenameUtils.getName(file.getName());
         return file.isFile() && filename.equals(INDEX_HTML);
     }
 
-    public static boolean isValidFile(File file) {
+    public static boolean isSupported(File file) {
         String extension = FilenameUtils.getExtension(file.getName());
         return file.isFile() && Arrays.asList(extensions).contains(extension);
     }
 
-    public static boolean isValidMarkdownFile(File file) {
-        String filename = FilenameUtils.getName(file.getName());
+    public static boolean isMarkdown(File file) {
         String extension = FilenameUtils.getExtension(file.getName());
-        return file.isFile() && (filename.equals(INDEX_HTML) || extension.equals("md"));
+        return file.isFile() && extension.equals("md");
     }
 
-    public static boolean isValidPdfFile(File file) {
+    public static boolean isPDF(File file) {
         String extension = FilenameUtils.getExtension(file.getName());
         return file.isFile() && extension.equals("pdf");
     }
 
-    public static boolean containsIndexFile(List<File> files) {
-        return files.stream().anyMatch(file -> FilenameUtils.getName(file.getName()).equals(INDEX_HTML));
-    }
-
-    public static boolean isEmpty(List<File> files) {
-        return files.isEmpty();
+    public static boolean containsIndex(List<File> files) {
+        return files.stream().anyMatch(CommonUtils::isIndex);
     }
 }

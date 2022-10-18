@@ -2,6 +2,7 @@ package dev.gotenberg;
 
 import dev.gotenberg.common.CommonUtils;
 import dev.gotenberg.common.PageProperties;
+import dev.gotenberg.common.exceptions.EmptyFileListException;
 import dev.gotenberg.common.exceptions.IndexFileNotFoundExceptions;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -30,7 +31,7 @@ public class Jotenberg {
     private final String endpoint;
 
     public Jotenberg(String endpoint) throws MalformedURLException {
-        if (!CommonUtils.isValid(endpoint)) {
+        if (!CommonUtils.isValidURL(endpoint)) {
             throw new MalformedURLException(endpoint + " is not a valid URL");
         }
         this.endpoint = endpoint;
@@ -40,16 +41,18 @@ public class Jotenberg {
 
 
     public CloseableHttpResponse convert(String url, PageProperties pageProperties) throws IOException {
-        if (!CommonUtils.isValid(url)) {
+        if (!CommonUtils.isValidURL(url)) {
             throw new MalformedURLException(url + " is not a valid URL.");
         }
+
         this.builder.addTextBody("url", url);
+
         return executeHttpPostRequest(endpoint.concat(CHROMIUM_URL_ROUTE), pageProperties);
     }
 
     public CloseableHttpResponse convert(File file, PageProperties pageProperties) throws IOException {
-        if (!CommonUtils.isIndexFile(file)) {
-            throw new FileNotFoundException("No index.html file found.");
+        if (!CommonUtils.isIndex(file)) {
+            throw new IndexFileNotFoundExceptions();
         }
 
         this.builder.addBinaryBody(file.getName(), file);
@@ -58,31 +61,35 @@ public class Jotenberg {
     }
 
     public CloseableHttpResponse convert(List<File> files, PageProperties pageProperties) throws IOException {
-        if (CommonUtils.isEmpty(files)) {
+        if (files.isEmpty()) {
+            throw new EmptyFileListException();
+        }
+
+        if (!CommonUtils.containsIndex(files)) {
             throw new IndexFileNotFoundExceptions();
         }
 
-        if (!CommonUtils.containsIndexFile(files)) {
-            throw new FileNotFoundException("No index.html file found.");
+        List<File> markdowns = files.stream().filter(CommonUtils::isMarkdown).toList();
+
+        if (markdowns.isEmpty()) {
+            throw new FileNotFoundException("Chromium's markdown route accepts a single index.html and markdown files.");
         }
 
-        List<File> supportedFiles = files.stream().filter(CommonUtils::isValidMarkdownFile).toList();
+        File indexFile = files.stream().filter(CommonUtils::isIndex).findFirst().get();
 
-        if (supportedFiles.isEmpty()) {
-            throw new FileNotFoundException("Chromium's markdwon route accepts a single index.html and markdown files.");
-        }
+        this.builder.addBinaryBody(indexFile.getName(), indexFile);
 
-        supportedFiles.forEach(file -> this.builder.addBinaryBody(file.getName(), file));
+        markdowns.forEach(file -> this.builder.addBinaryBody(file.getName(), file));
 
         return executeHttpPostRequest(endpoint.concat(CHROMIUM_MARKDOWN_ROUTE), pageProperties);
     }
 
     public CloseableHttpResponse convertWithLibreOffice(List<File> files, PageProperties pageProperties) throws IOException {
-        if (CommonUtils.isEmpty(files)) {
-            throw new FileNotFoundException("Files should not be empty.");
+        if (files.isEmpty()) {
+            throw new EmptyFileListException();
         }
 
-        List<File> supportedFiles = files.stream().filter(CommonUtils::isValidFile).toList();
+        List<File> supportedFiles = files.stream().filter(CommonUtils::isSupported).toList();
 
         if (supportedFiles.isEmpty()) {
             throw new FileNotFoundException("File extensions are not supported by Libre Office. Please refer to https://gotenberg.dev/docs/modules/libreoffice for more details.");
@@ -102,11 +109,11 @@ public class Jotenberg {
     }
 
     private CloseableHttpResponse getPdfEnginesHttpResponse(List<File> files, PageProperties pageProperties, String pdfEnginesRoute) throws IOException {
-        if (CommonUtils.isEmpty(files)) {
-            throw new FileNotFoundException("Files should not be empty.");
+        if (files.isEmpty()) {
+            throw new EmptyFileListException();
         }
 
-        List<File> pdfFiles = files.stream().filter(CommonUtils::isValidPdfFile).toList();
+        List<File> pdfFiles = files.stream().filter(CommonUtils::isPDF).toList();
 
         if (pdfFiles.isEmpty()) {
             throw new FileNotFoundException("No PDF file not found.");
