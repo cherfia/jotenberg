@@ -6,7 +6,7 @@ plugins {
 }
 
 group 'dev.inaka'
-version '1.0'
+version '1.0.0'
 
 dependencies {
     implementation 'org.apache.httpcomponents:httpclient:4.5.13'
@@ -34,7 +34,7 @@ publishing {
         maven(MavenPublication) {
             groupId = 'div.inaka.jotenberg'
             artifactId = 'jotenberg'
-            version = '1.0'
+            version = '1.0.0'
             from components.java
         }
     }
