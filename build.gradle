@@ -43,7 +43,16 @@ publishing {
 repositories {
     mavenCentral()
     maven {
+        name = "Artifactory"
         url "https://inaka.jfrog.io/artifactory/inaka-gradle-release/"
+    }
+    maven {
+        name = "GitHubPackages"
+        url = "https://maven.pkg.github.com/cherfia/jotenberg"
+        credentials {
+            username = System.getenv("GITHUB_ACTOR")
+            password = System.getenv("GITHUB_TOKEN")
+        }
     }
 }
 

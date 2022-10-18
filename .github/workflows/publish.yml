@@ -1,5 +1,7 @@
-name: build
-on: [push]
+name: publish
+on:
+  release:
+    types: [created]
 jobs:
   gradle:
     strategy:
@@ -16,6 +18,4 @@ jobs:
           cache: gradle
       - uses: gradle/gradle-build-action@v2
         with:
-          arguments: publish -Partifactory_contextUrl=${{ secrets.ARTIFACTORY_CONTEXT_URL }} -Partifactory_user=${{ secrets.ARTIFACTORY_USER }} -Partifactory_password=${{ secrets.ARTIFACTORY_PASSWORD }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          arguments: artifactoryPublish -Partifactory_contextUrl=${{ secrets.ARTIFACTORY_CONTEXT_URL }} -Partifactory_user=${{ secrets.ARTIFACTORY_USER }} -Partifactory_password=${{ secrets.ARTIFACTORY_PASSWORD }}
