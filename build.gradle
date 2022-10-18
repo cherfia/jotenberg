@@ -1,7 +1,6 @@
 plugins {
     id 'java-library'
     id "groovy"
-    id "com.jfrog.artifactory" version "4.29.1"
     id 'maven-publish'
 }
 
@@ -29,55 +28,30 @@ task fatJar(type: Jar) {
     with jar
 }
 
+
+repositories {
+    mavenCentral()
+}
+
 publishing {
+    repositories {
+        maven {
+            url = "https://maven.pkg.github.com/cherfia/jotenberg"
+            credentials {
+                username = "${github_actor}"
+                password = "${github_token}"
+            }
+        }
+    }
+
     publications {
         maven(MavenPublication) {
-            groupId = 'div.inaka.jotenberg'
+            groupId = 'div.inaka'
             artifactId = 'jotenberg'
             version = '1.0.0'
             from components.java
         }
     }
+
 }
 
-repositories {
-    mavenCentral()
-    maven {
-        name = "Artifactory"
-        url "https://inaka.jfrog.io/artifactory/inaka-gradle-release/"
-    }
-    maven {
-        name = "GitHubPackages"
-        url = "https://maven.pkg.github.com/cherfia/jotenberg"
-        credentials {
-            username = System.getenv("GITHUB_ACTOR")
-            password = System.getenv("GITHUB_TOKEN")
-        }
-    }
-}
-
-artifactory {
-    contextUrl = "${artifactory_contextUrl}"
-    publish {
-        repository {
-            repoKey = 'inaka-gradle-release-local'
-            username = "${artifactory_user}"
-            password = "${artifactory_password}"
-            maven = true
-        }
-        defaults {
-            publications('mavenJava')
-            publishConfigs('archives', 'published')
-            properties = ['qa.level': 'basic', 'q.os': 'win32, deb, osx']
-        }
-    }
-    resolve {
-        repository {
-            repoKey = 'inaka-gradle-release'
-            username = "${artifactory_user}"
-            password = "${artifactory_password}"
-            maven = true
-
-        }
-    }
-}
