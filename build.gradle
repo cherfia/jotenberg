@@ -3,8 +3,8 @@ plugins {
     id "groovy"
 }
 
-group 'dev.gotenberg'
-version '1.0-SNAPSHOT'
+group 'dev.inaka'
+version '1.0'
 
 repositories {
     mavenCentral()

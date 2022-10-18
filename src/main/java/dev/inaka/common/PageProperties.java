@@ -1,7 +1,7 @@
-package dev.gotenberg.common;
+package dev.inaka.common;
 
-import dev.gotenberg.common.exceptions.MarginMalformedException;
-import dev.gotenberg.common.exceptions.PageRangeMalformedException;
+import dev.inaka.common.exceptions.MarginMalformedException;
+import dev.inaka.common.exceptions.PageRangeMalformedException;
 
 import java.io.IOException;
 

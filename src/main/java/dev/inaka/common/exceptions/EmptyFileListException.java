@@ -1,4 +1,4 @@
-package dev.gotenberg.common.exceptions;
+package dev.inaka.common.exceptions;
 
 import java.io.FileNotFoundException;
 

@@ -1,9 +1,9 @@
-package dev.gotenberg;
+package dev.inaka;
 
-import dev.gotenberg.common.CommonUtils;
-import dev.gotenberg.common.PageProperties;
-import dev.gotenberg.common.exceptions.EmptyFileListException;
-import dev.gotenberg.common.exceptions.IndexFileNotFoundExceptions;
+import dev.inaka.common.CommonUtils;
+import dev.inaka.common.PageProperties;
+import dev.inaka.common.exceptions.EmptyFileListException;
+import dev.inaka.common.exceptions.IndexFileNotFoundExceptions;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;

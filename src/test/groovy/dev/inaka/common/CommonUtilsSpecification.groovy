@@ -1,4 +1,4 @@
-package dev.gotenberg.common
+package dev.inaka.common
 
 import spock.lang.Specification
 

@@ -110,8 +110,8 @@ CloseableHttpResponse response = client.merge(files, pageProperties);
 The following is a short snippet of how to use the library.
 
 ```java
-import dev.gotenberg.Jotenberg;
-import dev.gotenberg.common.PageProperties;
+import dev.inaka.Jotenberg;
+import dev.inaka.common.PageProperties;
 import org.apache.commons.io.FileUtils;
 
 import java.nio.file.Files;
@@ -119,15 +119,15 @@ import java.nio.file.Paths;
 
 public class Main {
     public static void main(String[] args) {
-        try (var client = new Jotenberg("http://localhost:80/")){
+        try (var client = new Jotenberg("http://localhost:80/")) {
             var url = "https://gotenberg.dev/";
             var properties = new PageProperties.Builder()
-                                            .addMarginTop(1.0f)
-                                            .addMarginLeft(0.5f)
-                                            .addMarginBottom(1.0f)
-                                            .addMarginTop(0.5f)
-                                            .addPrintBackground(true)
-                                            .build();
+                    .addMarginTop(1.0f)
+                    .addMarginLeft(0.5f)
+                    .addMarginBottom(1.0f)
+                    .addMarginTop(0.5f)
+                    .addPrintBackground(true)
+                    .build();
             var response = client.convert(url, properties);
             var projectDir = Paths.get("").toAbsolutePath().normalize();
             var tempDir = Files.createTempDirectory(projectDir, "temp_");

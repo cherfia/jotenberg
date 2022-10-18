@@ -1,4 +1,4 @@
-package dev.gotenberg.common;
+package dev.inaka.common;
 
 public enum PdfFormat {
     A_1A("PDF/A-1a"),

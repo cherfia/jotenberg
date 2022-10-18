@@ -1,4 +1,4 @@
-package dev.gotenberg.common.exceptions;
+package dev.inaka.common.exceptions;
 
 public class MarginMalformedException extends ArithmeticException {
     public MarginMalformedException() {
