@@ -19,7 +19,7 @@ import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.util.List;
 
-public class Jotenberg {
+public class Jotenberg implements AutoCloseable {
     private static final String CHROMIUM_HTML_ROUTE = "forms/chromium/convert/html";
     private static final String CHROMIUM_MARKDOWN_ROUTE = "forms/chromium/convert/markdown";
     private static final String CHROMIUM_URL_ROUTE = "forms/chromium/convert/url";
@@ -32,7 +32,7 @@ public class Jotenberg {
 
     public Jotenberg(String endpoint) throws MalformedURLException {
         if (!CommonUtils.isValidURL(endpoint)) {
-            throw new MalformedURLException(endpoint + " is not a valid URL");
+            throw new MalformedURLException();
         }
         this.endpoint = endpoint;
         this.builder = MultipartEntityBuilder.create().setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
@@ -42,7 +42,7 @@ public class Jotenberg {
 
     public CloseableHttpResponse convert(String url, PageProperties pageProperties) throws IOException {
         if (!CommonUtils.isValidURL(url)) {
-            throw new MalformedURLException(url + " is not a valid URL.");
+            throw new MalformedURLException();
         }
 
         this.builder.addTextBody("url", url);
@@ -75,7 +75,7 @@ public class Jotenberg {
             throw new FileNotFoundException("Chromium's markdown route accepts a single index.html and markdown files.");
         }
 
-        File indexFile = files.stream().filter(CommonUtils::isIndex).findFirst().get();
+        File indexFile = files.stream().filter(CommonUtils::isIndex).findFirst().orElseThrow();
 
         this.builder.addBinaryBody(indexFile.getName(), indexFile);
 
@@ -145,8 +145,8 @@ public class Jotenberg {
 
     }
 
-    public void close() throws IOException {
+    @Override
+    public void close() throws Exception {
         this.client.close();
     }
-
 }
