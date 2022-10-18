@@ -105,7 +105,7 @@ files.add(new File("path/to/second.pdf"));
 
 CloseableHttpResponse response = client.merge(files, pageProperties);
 ```
-## Snippet
+## Example
 
 The following is a short snippet of how to use the library.
 
@@ -114,30 +114,30 @@ import dev.gotenberg.Jotenberg;
 import dev.gotenberg.common.PageProperties;
 import org.apache.commons.io.FileUtils;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class Main {
-    public static void main(String[] args) throws IOException {
-        var client = new Jotenberg("http://localhost:80/");
-        var url = "https://gotenberg.dev/";
-        var properties = new PageProperties.Builder()
+    public static void main(String[] args) {
+        try (var client = new Jotenberg("http://localhost:80/")){
+            var url = "https://gotenberg.dev/";
+            var properties = new PageProperties.Builder()
                                             .addMarginTop(1.0f)
                                             .addMarginLeft(0.5f)
                                             .addMarginBottom(1.0f)
                                             .addMarginTop(0.5f)
                                             .addPrintBackground(true)
                                             .build();
-        try (var response = client.convert(url, properties)) {
+            var response = client.convert(url, properties);
             var projectDir = Paths.get("").toAbsolutePath().normalize();
             var tempDir = Files.createTempDirectory(projectDir, "temp_");
             var tempFile = Files.createTempFile(tempDir, "PDF_", ".pdf").toFile();
             var pdfContent = response.getEntity().getContent();
             FileUtils.copyInputStreamToFile(pdfContent, tempFile);
-        } finally {
-            client.close();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
+
     }
 }
 ```
