@@ -50,6 +50,24 @@ publishing {
             artifactId = 'jotenberg'
             version = '1.0.0'
             from components.java
+            pom {
+                name = 'Jotenberg'
+                description = 'A Java library that interacts with Gotenberg\'s different modules to convert a variety of document formats to PDF files.'
+                url = 'https://github.com/cherfia/jotenberg'
+                licenses {
+                    license {
+                        name = 'MIT License'
+                        url = 'https://github.com/cherfia/jotenberg/blob/main/LICENSE.md'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'cherfia'
+                        name = 'Taha Abdelmoutaleb Cherfia'
+                        email = 'taha.cherfia@gmail.com'
+                    }
+                }
+            }
         }
     }
 
