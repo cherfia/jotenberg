@@ -14,4 +14,4 @@ jobs:
           cache: gradle
       - uses: gradle/gradle-build-action@v2
         with:
-          arguments: publish -Pgithub_actor=${{ secrets.GITHUB_ACTOR }} -Pgithub_token=${{ secrets.GITHUB_TOKEN }}
+          arguments: publish -Pgithub_actor=${{ secrets.GITHUB_ACTOR }} -Pgithub_token=${{ secrets.GITHUB_TOKEN }} -PossrhUsername=${{secrets.OSSRH_USERNAME}} -PossrhPassword=${{secrets.OSSRH_PASSWORD}}
