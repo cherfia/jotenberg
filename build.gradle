@@ -2,6 +2,7 @@ plugins {
     id 'java-library'
     id "groovy"
     id 'maven-publish'
+    id 'signing'
 }
 
 group 'dev.inaka'
@@ -21,13 +22,10 @@ test {
     useJUnitPlatform()
 }
 
-task fatJar(type: Jar) {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    archiveBaseName = "${rootProject.name}"
-    from { configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
-    with jar
+java {
+    withJavadocJar()
+    withSourcesJar()
 }
-
 
 repositories {
     mavenCentral()
@@ -36,20 +34,37 @@ repositories {
 publishing {
     repositories {
         maven {
+            name="github"
             url = "https://maven.pkg.github.com/cherfia/jotenberg"
             credentials {
                 username = "${github_actor}"
                 password = "${github_token}"
             }
         }
+        maven {
+            name="sonatype"
+            url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+            credentials {
+                username = "${ossrhUsername}"
+                password = "${ossrhPassword}"
+            }
+        }
     }
 
     publications {
-        maven(MavenPublication) {
+        mavenJava(MavenPublication) {
             groupId = 'dev.inaka'
             artifactId = 'jotenberg'
             version = '1.0.0'
             from components.java
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
             pom {
                 name = 'Jotenberg'
                 description = 'A Java library that interacts with Gotenberg\'s different modules to convert a variety of document formats to PDF files.'
@@ -67,9 +82,23 @@ publishing {
                         email = 'taha.cherfia@gmail.com'
                     }
                 }
+                scm {
+                    connection = 'scm:git:git://github.com/cherfia/jotenberg.git'
+                    developerConnection = 'scm:git:ssh://github.com/cherfia/jotenberg.git'
+                    url = 'https://github.com/cherfia/jotenberg'
+                }
             }
         }
     }
-
 }
 
+signing {
+    sign publishing.publications.mavenJava
+}
+
+
+javadoc {
+    if(JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html5', true)
+    }
+}
