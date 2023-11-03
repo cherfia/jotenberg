@@ -4,6 +4,22 @@
 
 A Java library that interacts with [Gotenberg](https://gotenberg.dev/)'s different modules to convert a variety of document formats to PDF files.
 
+## Snippets
+To incorporate `jotenberg` into your project, follow the snippets below for Apache Maven and Gradle dependencies.
+### Apache Maven
+```xml
+<dependency>
+    <groupId>dev.inaka</groupId>
+    <artifactId>jotenberg</artifactId>
+    <version>1.0.2</version>
+</dependency>
+```
+
+### Gradle
+```gradle
+implementation group: 'dev.inaka', name: 'jotenberg', version: '1.0.2'
+```
+
 ## Prerequisites
 
 Before attempting to use `Jotenberg`, be sure you install [Docker](https://www.docker.com/) if you have not already done so.
