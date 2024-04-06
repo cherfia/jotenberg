@@ -1,31 +1,33 @@
-package dev.inaka.common;
+package dev.inaka.chromium;
 
+import dev.inaka.common.PdfFormat;
 import dev.inaka.common.exceptions.MarginMalformedException;
 import dev.inaka.common.exceptions.PageRangeMalformedException;
 
 import java.io.IOException;
 
 /**
- * PageProperties is a class that represents various properties for configuring document conversion,
+ * ChromiumPageProperties is a class that represents various properties for configuring document conversion,
  * such as paper size, margins, and other formatting options.
  */
-public final class PageProperties {
-    private final float paperWidth;
-    private final float paperHeight;
-    private final float marginTop;
-    private final float marginBottom;
-    private final float marginLeft;
-    private final float marginRight;
-    private final boolean preferCssPageSize;
-
-    private final boolean printBackground;
-    private final boolean landscape;
-    private final float scale;
+public class ChromiumPageProperties {
+    private final String paperWidth;
+    private final String paperHeight;
+    private final String marginTop;
+    private final String marginBottom;
+    private final String marginLeft;
+    private final String marginRight;
+    private final String preferCssPageSize;
+    private final String printBackground;
+    private final String omitBackground;
+    private final String landscape;
+    private final String scale;
     private final String nativePageRanges;
-    private final String pdfFormat;
+    private final String pdfa;
     private final String nativePdfFormat;
+    private final String singlePage;
 
-    private PageProperties(Builder builder) {
+    public ChromiumPageProperties(Builder builder) {
         paperWidth = builder.paperWidth;
         paperHeight = builder.paperHeight;
         marginTop = builder.marginTop;
@@ -34,34 +36,39 @@ public final class PageProperties {
         marginRight = builder.marginRight;
         preferCssPageSize = builder.preferCssPageSize;
         printBackground = builder.printBackground;
+        omitBackground = builder.omitBackground;
         landscape = builder.landscape;
         scale = builder.scale;
         nativePageRanges = builder.nativePageRanges;
-        pdfFormat = builder.pdfFormat;
+        pdfa = builder.pdfa;
         nativePdfFormat = builder.nativePdfFormat;
+        singlePage = builder.singlePage;
 
     }
 
+
     /**
-     * The Builder class is used to construct instances of PageProperties with specific configuration options.
+     * The Builder class is used to construct instances of ChromiumPageProperties with specific configuration options.
      */
     public static class Builder {
-        private float paperWidth = 8.5f;
-        private float paperHeight = 11f;
-        private float marginTop = 0.39f;
-        private float marginBottom = 0.39f;
-        private float marginLeft = 0.39f;
-        private float marginRight = 0.39f;
-        private boolean preferCssPageSize = false;
-        private boolean printBackground = false;
-        private boolean landscape = false;
-        private float scale = 1f;
-        private String nativePageRanges = "";
-        private String pdfFormat = "";
         private String nativePdfFormat = PdfFormat.A_1A.format();
+        private String pdfa = null;
+        private String paperWidth = "8.5";
+        private String paperHeight = "11";
+        private String marginTop = "0.39";
+        private String marginBottom = "0.39";
+        private String marginLeft = "0.39";
+        private String marginRight = "0.39";
+        private String preferCssPageSize = "false";
+        private String printBackground = "false";
+        private String omitBackground = "false";
+        private String landscape = "false";
+        private String scale = "1.0";
+        private String nativePageRanges = null;
+        private String singlePage = "false";
 
         /**
-         * Sets the paper width for the PageProperties being constructed.
+         * Sets the paper width for the ChromiumPageProperties being constructed.
          *
          * @param paperWidth The width of the paper.
          * @return The Builder instance for method chaining.
@@ -71,12 +78,12 @@ public final class PageProperties {
             if (paperWidth < 1.0f) {
                 throw new IOException("Width is smaller than the minimum printing requirements (1.0 in)");
             }
-            this.paperWidth = paperWidth;
+            this.paperWidth = String.valueOf(paperWidth);
             return this;
         }
 
         /**
-         * Sets the paper height for the PageProperties being constructed.
+         * Sets the paper height for the ChromiumPageProperties being constructed.
          *
          * @param paperHeight The height of the paper.
          * @return The Builder instance for method chaining.
@@ -86,12 +93,12 @@ public final class PageProperties {
             if (paperHeight < 1.5f) {
                 throw new IOException("paperHeight is smaller than the minimum printing requirements (1.5 in)");
             }
-            this.paperHeight = paperHeight;
+            this.paperHeight = String.valueOf(paperHeight);
             return this;
         }
 
         /**
-         * Sets the top margin for the PageProperties being constructed.
+         * Sets the top margin for the ChromiumPageProperties being constructed.
          *
          * @param marginTop The top margin.
          * @return The Builder instance for method chaining.
@@ -101,12 +108,12 @@ public final class PageProperties {
             if (marginTop < 0f) {
                 throw new MarginMalformedException();
             }
-            this.marginTop = marginTop;
+            this.marginTop = String.valueOf(marginTop);
             return this;
         }
 
         /**
-         * Sets the bottom margin for the PageProperties being constructed.
+         * Sets the bottom margin for the ChromiumPageProperties being constructed.
          *
          * @param marginBottom The bottom margin.
          * @return The Builder instance for method chaining.
@@ -116,12 +123,12 @@ public final class PageProperties {
             if (marginBottom < 0f) {
                 throw new MarginMalformedException();
             }
-            this.marginBottom = marginBottom;
+            this.marginBottom = String.valueOf(marginBottom);
             return this;
         }
 
         /**
-         * Sets the left margin for the PageProperties being constructed.
+         * Sets the left margin for the ChromiumPageProperties being constructed.
          *
          * @param marginLeft The left margin.
          * @return The Builder instance for method chaining.
@@ -131,12 +138,12 @@ public final class PageProperties {
             if (marginLeft < 0f) {
                 throw new MarginMalformedException();
             }
-            this.marginLeft = marginLeft;
+            this.marginLeft = String.valueOf(marginLeft);
             return this;
         }
 
         /**
-         * Sets the right margin for the PageProperties being constructed.
+         * Sets the right margin for the ChromiumPageProperties being constructed.
          *
          * @param marginRight The right margin.
          * @return The Builder instance for method chaining.
@@ -147,56 +154,67 @@ public final class PageProperties {
                 throw new MarginMalformedException();
             }
 
-            this.marginRight = marginRight;
+            this.marginRight = String.valueOf(marginRight);
             return this;
         }
 
         /**
-         * Sets whether CSS page size is preferred for the PageProperties being constructed.
+         * Sets whether CSS page size is preferred for the ChromiumPageProperties being constructed.
          *
          * @param preferCssPageSize `true` if CSS page size is preferred, `false` otherwise.
          * @return The Builder instance for method chaining.
          */
         public Builder addPreferCssPageSize(boolean preferCssPageSize) {
-            this.preferCssPageSize = preferCssPageSize;
+            this.preferCssPageSize = String.valueOf(preferCssPageSize);
             return this;
         }
 
         /**
-         * Sets whether background should be printed for the PageProperties being constructed.
+         * Sets whether background should be printed for the ChromiumPageProperties being constructed.
          *
          * @param printBackground `true` if background should be printed, `false` otherwise.
          * @return The Builder instance for method chaining.
          */
         public Builder addPrintBackground(boolean printBackground) {
-            this.printBackground = printBackground;
+            this.printBackground = String.valueOf(printBackground);
             return this;
         }
 
         /**
-         * Sets whether the document is in landscape orientation for the PageProperties being constructed.
+         * Sets whether background should be hidden for the ChromiumPageProperties being constructed.
+         *
+         * @param omitBackground `true` if background should be printed, `false` otherwise.
+         * @return The Builder instance for method chaining.
+         */
+        public Builder addOmitBackground(boolean omitBackground) {
+            this.omitBackground = String.valueOf(omitBackground);
+            return this;
+        }
+
+        /**
+         * Sets whether the document is in landscape orientation for the ChromiumPageProperties being constructed.
          *
          * @param landscape `true` if the document is in landscape orientation, `false` otherwise.
          * @return The Builder instance for method chaining.
          */
         public Builder addLandscape(boolean landscape) {
-            this.landscape = landscape;
+            this.landscape = String.valueOf(landscape);
             return this;
         }
 
         /**
-         * Sets the scaling factor for the PageProperties being constructed.
+         * Sets the scaling factor for the ChromiumPageProperties being constructed.
          *
          * @param scale The scaling factor.
          * @return The Builder instance for method chaining.
          */
         public Builder addScale(float scale) {
-            this.scale = scale;
+            this.scale = String.valueOf(scale);
             return this;
         }
 
         /**
-         * Sets the native page ranges for the PageProperties being constructed.
+         * Sets the native page ranges for the ChromiumPageProperties being constructed.
          *
          * @param start The start page number.
          * @param end   The end page number.
@@ -212,141 +230,35 @@ public final class PageProperties {
         }
 
         /**
-         * Sets the PDF format for the PageProperties being constructed.
+         * Sets the PDF format for the ChromiumPageProperties being constructed.
          *
-         * @param pdfFormat The PDF format.
+         * @param pdfa The PDF format.
          * @return The Builder instance for method chaining.
          */
-        public Builder addPdfFormat(String pdfFormat) {
-            this.pdfFormat = pdfFormat;
+        public Builder addPdfa(String pdfa) {
+            this.pdfa = pdfa;
             return this;
         }
 
         /**
-         * Builds and returns an instance of PageProperties with the configured options.
+         * Sets whether the document should be printed as single page for the ChromiumPageProperties being constructed.
+         *
+         * @param singlePage `true` if the document is printed as a single page, `false` otherwise.
+         * @return The Builder instance for method chaining.
+         */
+        public Builder addSinglePage(boolean singlePage) {
+            this.singlePage = String.valueOf(singlePage);
+            return this;
+        }
+
+        /**
+         * Builds and returns an instance of ChromiumPageProperties with the configured options.
          *
          * @return An instance of PageProperties.
          */
-        public PageProperties build() {
-            return new PageProperties(this);
+        public ChromiumPageProperties build() {
+            return new ChromiumPageProperties(this);
         }
-    }
-
-    /**
-     * Returns the width of the paper.
-     *
-     * @return The paper width.
-     */
-    public float getPaperWidth() {
-        return paperWidth;
-    }
-
-    /**
-     * Returns the height of the paper.
-     *
-     * @return The paper height.
-     */
-    public float getPaperHeight() {
-        return paperHeight;
-    }
-
-    /**
-     * Returns the top margin.
-     *
-     * @return The top margin.
-     */
-    public float getMarginTop() {
-        return marginTop;
-    }
-
-    /**
-     * Returns the bottom margin.
-     *
-     * @return The bottom margin.
-     */
-    public float getMarginBottom() {
-        return marginBottom;
-    }
-
-    /**
-     * Returns the left margin.
-     *
-     * @return The left margin.
-     */
-    public float getMarginLeft() {
-        return marginLeft;
-    }
-
-    /**
-     * Returns the right margin.
-     *
-     * @return The right margin.
-     */
-    public float getMarginRight() {
-        return marginRight;
-    }
-
-    /**
-     * Checks if CSS page size is preferred.
-     *
-     * @return `true` if CSS page size is preferred, `false` otherwise.
-     */
-    public boolean isPreferCssPageSize() {
-        return preferCssPageSize;
-    }
-
-    /**
-     * Checks if background should be printed.
-     *
-     * @return `true` if background should be printed, `false` otherwise.
-     */
-    public boolean isPrintBackground() {
-        return printBackground;
-    }
-
-    /**
-     * Checks if the document is in landscape orientation.
-     *
-     * @return `true` if the document is in landscape orientation, `false` otherwise.
-     */
-    public boolean isLandscape() {
-        return landscape;
-    }
-
-    /**
-     * Returns the scaling factor.
-     *
-     * @return The scaling factor.
-     */
-    public float getScale() {
-        return scale;
-    }
-
-    /**
-     * Returns the native page ranges.
-     *
-     * @return The native page ranges.
-     */
-    public String getNativePageRanges() {
-        return nativePageRanges;
-    }
-
-    /**
-     * Returns the PDF format.
-     *
-     * @return The PDF format.
-     */
-    public String getPdfFormat() {
-        return pdfFormat;
-    }
-
-    /**
-     * Returns the native PDF format.
-     *
-     * @return The native PDF format.
-     */
-    public String getNativePdfFormat() {
-        return nativePdfFormat;
     }
 }
 
