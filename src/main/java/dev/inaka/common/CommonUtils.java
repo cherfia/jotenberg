@@ -13,8 +13,141 @@ import java.util.List;
  * CommonUtils is a utility class that provides various common utility methods for handling files and URLs.
  */
 public class CommonUtils {
-    private static final String[] extensions = {"bib", "doc", "xml", "docx", "fodt", "html", "ltx", "txt", "odt", "ott", "pdb", "pdf", "psw", "rtf", "sdw", "stw", "sxw", "uot", "vor", "wps", "epub", "png", "bmp", "emf", "eps", "fodg", "gif", "jpg", "met", "odd", "otg", "pbm", "pct", "pgm", "ppm", "ras", "std", "svg", "svm", "swf", "sxd", "sxw", "tiff", "xhtml", "xpm", "fodp", "potm", "pot", "pptx", "pps", "ppt", "pwp", "sda", "sdd", "sti", "sxi", "uop", "wmf", "csv", "dbf", "dif", "fods", "ods", "ots", "pxl", "sdc", "slk", "stc", "sxc", "uos", "xls", "xlt", "xlsx", "tif", "jpeg", "odp",};
+    private static final String[] extensions = {
+            "123",
+            "602",
+            "abw",
+            "bib",
+            "bmp",
+            "cdr",
+            "cgm",
+            "cmx",
+            "csv",
+            "cwk",
+            "dbf",
+            "dif",
+            "doc",
+            "docm",
+            "docx",
+            "dot",
+            "dotm",
+            "dotx",
+            "dxf",
+            "emf",
+            "eps",
+            "epub",
+            "fodg",
+            "fodp",
+            "fods",
+            "fodt",
+            "fopd",
+            "gif",
+            "htm",
+            "html",
+            "hwp",
+            "jpeg",
+            "jpg",
+            "key",
+            "ltx",
+            "lwp",
+            "mcw",
+            "met",
+            "mml",
+            "mw",
+            "numbers",
+            "odd",
+            "odg",
+            "odm",
+            "odp",
+            "ods",
+            "odt",
+            "otg",
+            "oth",
+            "otp",
+            "ots",
+            "ott",
+            "pages",
+            "pbm",
+            "pcd",
+            "pct",
+            "pcx",
+            "pdb",
+            "pdf",
+            "pgm",
+            "png",
+            "pot",
+            "potm",
+            "potx",
+            "ppm",
+            "pps",
+            "ppt",
+            "pptm",
+            "pptx",
+            "psd",
+            "psw",
+            "pub",
+            "pwp",
+            "pxl",
+            "ras",
+            "rtf",
+            "sda",
+            "sdc",
+            "sdd",
+            "sdp",
+            "sdw",
+            "sgl",
+            "slk",
+            "smf",
+            "stc",
+            "std",
+            "sti",
+            "stw",
+            "svg",
+            "svm",
+            "swf",
+            "sxc",
+            "sxd",
+            "sxg",
+            "sxi",
+            "sxm",
+            "sxw",
+            "tga",
+            "tif",
+            "tiff",
+            "txt",
+            "uof",
+            "uop",
+            "uos",
+            "uot",
+            "vdx",
+            "vor",
+            "vsd",
+            "vsdm",
+            "vsdx",
+            "wb2",
+            "wk1",
+            "wks",
+            "wmf",
+            "wpd",
+            "wpg",
+            "wps",
+            "xbm",
+            "xhtml",
+            "xls",
+            "xlsb",
+            "xlsm",
+            "xlsx",
+            "xlt",
+            "xltm",
+            "xltx",
+            "xlw",
+            "xml",
+            "xpm",
+            "zabw"
+    };
     private static final String INDEX_HTML = "index.html";
+    private static final String HEADER_HTML = "header.html";
+    private static final String FOOTER_HTML = "footer.html";
 
     private CommonUtils() {
     }
@@ -43,6 +176,28 @@ public class CommonUtils {
     public static boolean isIndex(File file) {
         String filename = FilenameUtils.getName(file.getName());
         return file.isFile() && filename.equals(INDEX_HTML);
+    }
+
+    /**
+     * Checks if a file is a header HTML file.
+     *
+     * @param file The file to check.
+     * @return `true` if the file is a header HTML file, `false` otherwise.
+     */
+    public static boolean isHeader(File file) {
+        String filename = FilenameUtils.getName(file.getName());
+        return file.isFile() && filename.equals(HEADER_HTML);
+    }
+
+    /**
+     * Checks if a file is a footer HTML file.
+     *
+     * @param file The file to check.
+     * @return `true` if the file is a footer HTML file, `false` otherwise.
+     */
+    public static boolean isFooter(File file) {
+        String filename = FilenameUtils.getName(file.getName());
+        return file.isFile() && filename.equals(FOOTER_HTML);
     }
 
     /**
