@@ -12,6 +12,7 @@ dependencies {
     implementation 'org.apache.httpcomponents:httpclient:4.5.13'
     implementation 'org.apache.httpcomponents:httpmime:4.5.13'
     implementation 'commons-io:commons-io:2.11.0'
+    implementation 'org.json:json:20240303'
     testImplementation 'net.bytebuddy:byte-buddy:1.12.16'
     testImplementation 'org.objenesis:objenesis:3.2'
     testImplementation 'org.codehaus.groovy:groovy-all:3.0.13'
@@ -34,15 +35,7 @@ repositories {
 publishing {
     repositories {
         maven {
-            name="github"
-            url = "https://maven.pkg.github.com/cherfia/jotenberg"
-            credentials {
-                username = "${github_actor}"
-                password = "${github_token}"
-            }
-        }
-        maven {
-            name="sonatype"
+            name = "sonatype"
             url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
             credentials {
                 username = "${ossrhUsername}"
@@ -98,7 +91,7 @@ signing {
 
 
 javadoc {
-    if(JavaVersion.current().isJava9Compatible()) {
+    if (JavaVersion.current().isJava9Compatible()) {
         options.addBooleanOption('html5', true)
     }
 }
