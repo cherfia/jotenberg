@@ -9,20 +9,37 @@ public final class LibreOfficeOptions {
     private final String merge;
     private final String pdfa;
     private final String pdfua;
+    private final String losslessImageCompression;
+    private final String reduceImageResolution;
 
     private LibreOfficeOptions(Builder builder) {
         merge = builder.merge;
         pdfa = builder.pdfa;
         pdfua = builder.pdfua;
+        losslessImageCompression = builder.losslessImageCompression;
+        reduceImageResolution = builder.reduceImageResolution;
     }
 
     /**
      * The Builder class is used to construct instances of ChromiumPageProperties with specific configuration options.
      */
     public static class Builder {
+        private String losslessImageCompression = "false";
         private String merge = "false";
         private String pdfa = null;
         private String pdfua = "false";
+        private String reduceImageResolution = "true";
+
+        /**
+         * Sets whether to enable lossless image compression to tweak image conversion performance.
+         *
+         * @param losslessImageCompression Whether to enable lossless image compression.
+         * @return The Builder instance for method chaining.
+         */
+        public Builder addLosslessImageCompression(boolean losslessImageCompression) {
+            this.losslessImageCompression = String.valueOf(losslessImageCompression);
+            return this;
+        }
 
         /**
          * Sets whether to merge the conversion result by LibreOffice.
@@ -54,6 +71,17 @@ public final class LibreOfficeOptions {
          */
         public Builder addPdfua(String pdfua) {
             this.pdfua = pdfua;
+            return this;
+        }
+
+        /**
+         * Sets whether to reduce image resolution during conversion to tweak image conversion performance.
+         *
+         * @param reduceImageResolution Whether to reduce image resolution.
+         * @return The Builder instance for method chaining.
+         */
+        public Builder addReduceImageResolution(boolean reduceImageResolution) {
+            this.reduceImageResolution = String.valueOf(reduceImageResolution);
             return this;
         }
 
