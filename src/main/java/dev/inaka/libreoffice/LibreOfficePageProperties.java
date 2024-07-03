@@ -10,11 +10,13 @@ public final class LibreOfficePageProperties {
     private final String landscape;
     private final String nativePageRanges;
     private final String exportFormFields;
+    private final String singlePageSheets;
 
     private LibreOfficePageProperties(Builder builder) {
         landscape = builder.landscape;
         nativePageRanges = builder.nativePageRanges;
         exportFormFields = builder.exportFormFields;
+        singlePageSheets = builder.singlePageSheets;
 
     }
 
@@ -25,6 +27,7 @@ public final class LibreOfficePageProperties {
         private String landscape = "false";
         private String exportFormFields = "true";
         private String nativePageRanges = "";
+        private String singlePageSheets = "false";
 
 
         /**
@@ -62,6 +65,17 @@ public final class LibreOfficePageProperties {
                 throw new PageRangeMalformedException();
             }
             this.nativePageRanges = start + "-" + end;
+            return this;
+        }
+
+        /**
+         * Sets whether single page sheets should be used for the LibreOfficePageProperties being constructed.
+         *
+         * @param singlePageSheets `true` if single page sheets should be used to render the entire spreadsheet as a single page, `false` otherwise.
+         * @return
+         */
+        public Builder addSinglePageSheets(boolean singlePageSheets) {
+            this.singlePageSheets = String.valueOf(singlePageSheets);
             return this;
         }
 
