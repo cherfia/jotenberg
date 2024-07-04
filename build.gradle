@@ -6,17 +6,17 @@ plugins {
 }
 
 group 'dev.inaka'
-version '1.0.2'
+version '1.1.0'
 
 dependencies {
-    implementation 'org.apache.httpcomponents:httpclient:4.5.13'
-    implementation 'org.apache.httpcomponents:httpmime:4.5.13'
-    implementation 'commons-io:commons-io:2.11.0'
+    implementation 'org.apache.httpcomponents:httpclient:4.5.14'
+    implementation 'org.apache.httpcomponents:httpmime:4.5.14'
+    implementation 'commons-io:commons-io:2.16.1'
     implementation 'org.json:json:20240303'
-    testImplementation 'net.bytebuddy:byte-buddy:1.12.16'
-    testImplementation 'org.objenesis:objenesis:3.2'
-    testImplementation 'org.codehaus.groovy:groovy-all:3.0.13'
-    testImplementation 'org.spockframework:spock-core:2.3-groovy-3.0'
+    testImplementation 'net.bytebuddy:byte-buddy:1.14.17'
+    testImplementation 'org.objenesis:objenesis:3.4'
+    testImplementation 'org.codehaus.groovy:groovy-all:3.0.22'
+    testImplementation 'org.spockframework:spock-core:2.4-M4-groovy-3.0'
 }
 
 test {
@@ -48,7 +48,7 @@ publishing {
         mavenJava(MavenPublication) {
             groupId = 'dev.inaka'
             artifactId = 'jotenberg'
-            version = '1.0.2'
+            version = '1.1.0'
             from components.java
             versionMapping {
                 usage('java-api') {
