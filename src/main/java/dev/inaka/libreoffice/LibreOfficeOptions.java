@@ -2,15 +2,19 @@ package dev.inaka.libreoffice;
 
 import dev.inaka.common.PdfFormat;
 
+import java.util.Set;
+
 /**
  * The LibreOfficeOptions class is used to configure LibreOffice conversion options.
  */
 public final class LibreOfficeOptions {
+    private final String quality;
     private final String merge;
     private final String pdfa;
     private final String pdfua;
     private final String losslessImageCompression;
     private final String reduceImageResolution;
+    private final String maxImageResolution;
 
     private LibreOfficeOptions(Builder builder) {
         merge = builder.merge;
@@ -18,6 +22,8 @@ public final class LibreOfficeOptions {
         pdfua = builder.pdfua;
         losslessImageCompression = builder.losslessImageCompression;
         reduceImageResolution = builder.reduceImageResolution;
+        quality = builder.quality;
+        maxImageResolution = builder.maxImageResolution;
     }
 
     /**
@@ -29,6 +35,8 @@ public final class LibreOfficeOptions {
         private String pdfa = null;
         private String pdfua = "false";
         private String reduceImageResolution = "true";
+        private String quality = "90";
+        private String maxImageResolution = "300";
 
         /**
          * Sets whether to enable lossless image compression to tweak image conversion performance.
@@ -83,6 +91,46 @@ public final class LibreOfficeOptions {
         public Builder addReduceImageResolution(boolean reduceImageResolution) {
             this.reduceImageResolution = String.valueOf(reduceImageResolution);
             return this;
+        }
+
+        /**
+         * Sets the quality of the JPG export. A higher value produces a higher-quality image and a larger file.
+         *
+         * @param quality The quality of the output file.
+         * @return The Builder instance for method chaining.
+         * @throws IllegalArgumentException if the quality is not within the valid range (0 to 100).
+         */
+        public Builder addQuality(Integer quality) {
+            if (quality < 0 || quality > 100) {
+                throw new IllegalArgumentException("Quality must be between 0 and 100");
+            }
+            this.quality = String.valueOf(quality);
+            return this;
+        }
+
+        /**
+         * Sets the maximum resolution for images in the output file.
+         *
+         * @param maxImageResolution The maximum resolution for images in the output file.
+         * @return The Builder instance for method chaining.
+         * @throws IllegalArgumentException if the maximum image resolution is not one of the valid values (75, 150, 300, 600, and 1200).
+         */
+        public Builder addMaxImageResolution(Integer maxImageResolution) {
+            Set<Integer> validValues = Set.of(75, 150, 300, 600, 1200);
+            if (!validValues.contains(maxImageResolution)) {
+                throw new IllegalArgumentException("Invalid maximum image resolution. Valid values are 75, 150, 300, 600, and 1200.");
+            }
+            this.maxImageResolution = String.valueOf(maxImageResolution);
+            return this;
+        }
+
+        /**
+         * Returns the configured quality of the output file.
+         *
+         * @return The configured quality of the output file.
+         */
+        public String getQuality() {
+            return quality;
         }
 
         /**
