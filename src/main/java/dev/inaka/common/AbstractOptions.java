@@ -73,7 +73,7 @@ public abstract class AbstractOptions {
          * @throws FooterFileNotFoundExceptions if footer file is not found.
          */
         public Builder<T> addFooter(File footer) throws FooterFileNotFoundExceptions {
-            if (!CommonUtils.isHeader(footer)) {
+            if (!CommonUtils.isFooter(footer)) {
                 throw new FooterFileNotFoundExceptions();
             }
             this.footer = footer;
