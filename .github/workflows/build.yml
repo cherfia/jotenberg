@@ -1,5 +1,5 @@
 name: build
-on: [push]
+on: [ push ]
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -12,4 +12,4 @@ jobs:
           cache: gradle
       - uses: gradle/gradle-build-action@v2
         with:
-          arguments: build -Pgithub_actor=${{ secrets.GITHUB_ACTOR }} -Pgithub_token=${{ secrets.GITHUB_TOKEN }} -PossrhUsername=${{secrets.OSSRH_USERNAME}} -PossrhPassword=${{secrets.OSSRH_PASSWORD}}
+          arguments: build
