@@ -36,6 +36,12 @@ public class Jotenberg implements AutoCloseable {
     private static final String LIBRE_OFFICE_ROUTE = "forms/libreoffice/convert";
     private static final String PDF_ENGINES_CONVERT_ROUTE = "forms/pdfengines/convert";
     private static final String PDF_ENGINES_MERGE_ROUTE = "forms/pdfengines/merge";
+    private static final String PDF_ENGINES_READ_METADATA_ROUTE = "forms/pdfengines/metadata/read";
+    private static final String PDF_ENGINES_WRITE_METADATA_ROUTE = "forms/pdfengines/metadata/write";
+    private static final String PDF_ENGINES_SPLIT_ROUTE = "forms/pdfengines/split";
+    private static final String PDF_ENGINES_FLATTEN_ROUTE = "forms/pdfengines/flatten";
+    private static final String PDF_ENGINES_ENCRYPT_ROUTE = "forms/pdfengines/encrypt";
+    private static final String PDF_ENGINES_EMBED_ROUTE = "forms/pdfengines/embed";
 
     private static final String SCREENSHOTS_HTML_ROUTE = "forms/chromium/screenshot/html";
     private static final String SCREENSHOTS_MARKDOWN_ROUTE = "forms/chromium/screenshot/markdown";
@@ -217,7 +223,7 @@ public class Jotenberg implements AutoCloseable {
 
     /**
      * Converts a list of files using LibreOffice.
-     * Please refer to https://gotenberg.dev/docs/modules/libreoffice for more details.
+     * Please refer to <a href="https://gotenberg.dev/docs/modules/libreoffice">https://gotenberg.dev/docs/modules/libreoffice</a> for more details.
      *
      * @param files          The list of files to convert.
      * @param pageProperties Page properties for the conversion.
@@ -250,7 +256,7 @@ public class Jotenberg implements AutoCloseable {
      * @throws IOException If an I/O error occurs during the conversion process.
      */
     public CloseableHttpResponse convertWithPdfEngines(List<File> files, PDFEnginesConversionOptions options) throws IOException {
-        return HTTPRequestManager.getPdfEnginesHttpResponse(files, options, PDF_ENGINES_CONVERT_ROUTE);
+        return HTTPRequestManager.getPdfEnginesHttpResponse(files, options, endpoint.concat(PDF_ENGINES_CONVERT_ROUTE));
     }
 
     /**
@@ -262,7 +268,80 @@ public class Jotenberg implements AutoCloseable {
      * @throws IOException If an I/O error occurs during the merge process.
      */
     public CloseableHttpResponse mergeWithPdfEngines(List<File> files, PDFEnginesMergeOptions options) throws IOException {
-        return HTTPRequestManager.getPdfEnginesHttpResponse(files, options, PDF_ENGINES_MERGE_ROUTE);
+        return HTTPRequestManager.getPdfEnginesHttpResponse(files, options, endpoint.concat(PDF_ENGINES_MERGE_ROUTE));
+    }
+
+    /**
+     * Reads metadata from PDF files using PDF Engines.
+     *
+     * @param files The list of PDF files.
+     * @return A CloseableHttpResponse containing the metadata.
+     * @throws IOException If an I/O error occurs during the operation.
+     */
+    public CloseableHttpResponse readMetadataWithPdfEngines(List<File> files) throws IOException {
+        return HTTPRequestManager.getPdfEnginesHttpResponse(files, null, endpoint.concat(PDF_ENGINES_READ_METADATA_ROUTE));
+    }
+
+    /**
+     * Writes metadata to PDF files using PDF Engines.
+     *
+     * @param files    The list of PDF files.
+     * @param metadata The metadata to write as a JSON string.
+     * @return A CloseableHttpResponse containing the result.
+     * @throws IOException If an I/O error occurs during the operation.
+     */
+    public CloseableHttpResponse writeMetadataWithPdfEngines(List<File> files, String metadata) throws IOException {
+        return HTTPRequestManager.getPdfEnginesHttpResponseWithMetadata(files, metadata, endpoint.concat(PDF_ENGINES_WRITE_METADATA_ROUTE));
+    }
+
+    /**
+     * Splits PDF files using PDF Engines.
+     *
+     * @param files      The list of PDF files to split.
+     * @param splitMode  The split mode ('pages' or 'intervals').
+     * @param splitSpan  The split span.
+     * @param splitUnify Whether to unify (only for pages mode).
+     * @param flatten    Whether to flatten.
+     * @return A CloseableHttpResponse containing the result.
+     * @throws IOException If an I/O error occurs during the operation.
+     */
+    public CloseableHttpResponse splitWithPdfEngines(List<File> files, String splitMode, String splitSpan, Boolean splitUnify, Boolean flatten) throws IOException {
+        return HTTPRequestManager.getPdfEnginesHttpResponseWithSplit(files, splitMode, splitSpan, splitUnify, flatten, endpoint.concat(PDF_ENGINES_SPLIT_ROUTE));
+    }
+
+    /**
+     * Flattens PDF files using PDF Engines.
+     *
+     * @param files The list of PDF files to flatten.
+     * @return A CloseableHttpResponse containing the result.
+     * @throws IOException If an I/O error occurs during the operation.
+     */
+    public CloseableHttpResponse flattenWithPdfEngines(List<File> files) throws IOException {
+        return HTTPRequestManager.getPdfEnginesHttpResponse(files, null, endpoint.concat(PDF_ENGINES_FLATTEN_ROUTE));
+    }
+
+    /**
+     * Encrypts PDF files using PDF Engines.
+     *
+     * @param files   The list of PDF files to encrypt.
+     * @param options PDF Engines encrypt options.
+     * @return A CloseableHttpResponse containing the result.
+     * @throws IOException If an I/O error occurs during the operation.
+     */
+    public CloseableHttpResponse encryptWithPdfEngines(List<File> files, dev.inaka.pdfengines.PDFEnginesEncryptOptions options) throws IOException {
+        return HTTPRequestManager.getPdfEnginesHttpResponseWithEncrypt(files, options, endpoint.concat(PDF_ENGINES_ENCRYPT_ROUTE));
+    }
+
+    /**
+     * Embeds files into PDF files using PDF Engines.
+     *
+     * @param files  The list of PDF files to embed files into.
+     * @param embeds The list of files to embed.
+     * @return A CloseableHttpResponse containing the result.
+     * @throws IOException If an I/O error occurs during the operation.
+     */
+    public CloseableHttpResponse embedWithPdfEngines(List<File> files, List<File> embeds) throws IOException {
+        return HTTPRequestManager.getPdfEnginesHttpResponseWithEmbed(files, embeds, endpoint.concat(PDF_ENGINES_EMBED_ROUTE));
     }
 
 
