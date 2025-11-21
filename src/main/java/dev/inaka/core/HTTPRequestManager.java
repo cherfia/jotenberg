@@ -52,7 +52,9 @@ public class HTTPRequestManager {
 
         pdfFiles.forEach(file -> jotenberg.getBuilder().addBinaryBody(file.getName(), file));
 
-        jotenberg.getConversionHelper().buildPdfEngineOptions(options);
+        if (options != null) {
+            jotenberg.getConversionHelper().buildPdfEngineOptions(options);
+        }
         HttpPost httpPost = new HttpPost(route);
         HttpEntity requestEntity = jotenberg.getBuilder().build();
         httpPost.setEntity(requestEntity);
@@ -107,6 +109,138 @@ public class HTTPRequestManager {
     public CloseableHttpResponse executeHttpPostRequest(String route, ImageProperties imageProperties, ScreenshotOptions options) throws IOException {
         jotenberg.getConversionHelper().buildImageProperties(imageProperties);
         jotenberg.getConversionHelper().buildChromiumOptions(options);
+        HttpPost httpPost = new HttpPost(route);
+        HttpEntity requestEntity = jotenberg.getBuilder().build();
+        httpPost.setEntity(requestEntity);
+        return jotenberg.getClient().execute(httpPost);
+    }
+
+    /**
+     * Executes an HTTP POST request for PDF Engines write metadata operation.
+     *
+     * @param files    The list of PDF files.
+     * @param metadata The metadata to write as JSON string.
+     * @param route    The route for the PDF Engines operation.
+     * @return A CloseableHttpResponse containing the result.
+     * @throws IOException If an I/O error occurs during the operation.
+     */
+    public CloseableHttpResponse getPdfEnginesHttpResponseWithMetadata(List<File> files, String metadata, String route) throws IOException {
+        if (files.isEmpty()) {
+            throw new EmptyFileListException();
+        }
+
+        List<File> pdfFiles = files.stream().filter(CommonUtils::isPDF).toList();
+
+        if (pdfFiles.isEmpty()) {
+            throw new FileNotFoundException("No PDF file not found.");
+        }
+
+        jotenberg.getBuilder().addTextBody("metadata", metadata);
+        pdfFiles.forEach(file -> jotenberg.getBuilder().addBinaryBody(file.getName(), file));
+
+        HttpPost httpPost = new HttpPost(route);
+        HttpEntity requestEntity = jotenberg.getBuilder().build();
+        httpPost.setEntity(requestEntity);
+        return jotenberg.getClient().execute(httpPost);
+    }
+
+    /**
+     * Executes an HTTP POST request for PDF Engines split operation.
+     *
+     * @param files      The list of PDF files to split.
+     * @param splitMode  The split mode ('pages' or 'intervals').
+     * @param splitSpan  The split span.
+     * @param splitUnify Whether to unify (only for pages mode).
+     * @param flatten    Whether to flatten.
+     * @param route      The route for the PDF Engines operation.
+     * @return A CloseableHttpResponse containing the result.
+     * @throws IOException If an I/O error occurs during the operation.
+     */
+    public CloseableHttpResponse getPdfEnginesHttpResponseWithSplit(List<File> files, String splitMode, String splitSpan, Boolean splitUnify, Boolean flatten, String route) throws IOException {
+        if (files.isEmpty()) {
+            throw new EmptyFileListException();
+        }
+
+        List<File> pdfFiles = files.stream().filter(CommonUtils::isPDF).toList();
+
+        if (pdfFiles.isEmpty()) {
+            throw new FileNotFoundException("No PDF file not found.");
+        }
+
+        pdfFiles.forEach(file -> jotenberg.getBuilder().addBinaryBody(file.getName(), file));
+        jotenberg.getBuilder().addTextBody("splitMode", splitMode);
+        jotenberg.getBuilder().addTextBody("splitSpan", splitSpan);
+
+        if (splitUnify != null) {
+            jotenberg.getBuilder().addTextBody("splitUnify", String.valueOf(splitUnify));
+        }
+
+        if (flatten != null) {
+            jotenberg.getBuilder().addTextBody("flatten", String.valueOf(flatten));
+        }
+
+        HttpPost httpPost = new HttpPost(route);
+        HttpEntity requestEntity = jotenberg.getBuilder().build();
+        httpPost.setEntity(requestEntity);
+        return jotenberg.getClient().execute(httpPost);
+    }
+
+    /**
+     * Executes an HTTP POST request for PDF Engines encrypt operation.
+     *
+     * @param files   The list of PDF files to encrypt.
+     * @param options PDF Engines encrypt options.
+     * @param route   The route for the PDF Engines operation.
+     * @return A CloseableHttpResponse containing the result.
+     * @throws IOException If an I/O error occurs during the operation.
+     */
+    public CloseableHttpResponse getPdfEnginesHttpResponseWithEncrypt(List<File> files, dev.inaka.pdfengines.PDFEnginesEncryptOptions options, String route) throws IOException {
+        if (files.isEmpty()) {
+            throw new EmptyFileListException();
+        }
+
+        List<File> pdfFiles = files.stream().filter(CommonUtils::isPDF).toList();
+
+        if (pdfFiles.isEmpty()) {
+            throw new FileNotFoundException("No PDF file not found.");
+        }
+
+        pdfFiles.forEach(file -> jotenberg.getBuilder().addBinaryBody(file.getName(), file));
+        jotenberg.getBuilder().addTextBody("userPassword", options.getUserPassword());
+
+        if (options.getOwnerPassword() != null) {
+            jotenberg.getBuilder().addTextBody("ownerPassword", options.getOwnerPassword());
+        }
+
+        HttpPost httpPost = new HttpPost(route);
+        HttpEntity requestEntity = jotenberg.getBuilder().build();
+        httpPost.setEntity(requestEntity);
+        return jotenberg.getClient().execute(httpPost);
+    }
+
+    /**
+     * Executes an HTTP POST request for PDF Engines embed operation.
+     *
+     * @param files  The list of PDF files to embed files into.
+     * @param embeds The list of files to embed.
+     * @param route  The route for the PDF Engines operation.
+     * @return A CloseableHttpResponse containing the result.
+     * @throws IOException If an I/O error occurs during the operation.
+     */
+    public CloseableHttpResponse getPdfEnginesHttpResponseWithEmbed(List<File> files, List<File> embeds, String route) throws IOException {
+        if (files.isEmpty()) {
+            throw new EmptyFileListException();
+        }
+
+        List<File> pdfFiles = files.stream().filter(CommonUtils::isPDF).toList();
+
+        if (pdfFiles.isEmpty()) {
+            throw new FileNotFoundException("No PDF file not found.");
+        }
+
+        pdfFiles.forEach(file -> jotenberg.getBuilder().addBinaryBody(file.getName(), file));
+        embeds.forEach(file -> jotenberg.getBuilder().addBinaryBody("embeds", file));
+
         HttpPost httpPost = new HttpPost(route);
         HttpEntity requestEntity = jotenberg.getBuilder().build();
         httpPost.setEntity(requestEntity);

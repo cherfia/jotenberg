@@ -1,12 +1,10 @@
 package dev.inaka.core;
 
 import dev.inaka.Jotenberg;
-import dev.inaka.chromium.ChromiumOptions;
 import dev.inaka.chromium.ChromiumPageProperties;
 import dev.inaka.common.AbstractOptions;
 import dev.inaka.libreoffice.LibreOfficeOptions;
 import dev.inaka.libreoffice.LibreOfficePageProperties;
-import dev.inaka.pdfengines.PDFEnginesMergeOptions;
 import dev.inaka.pdfengines.PDFEnginesOptions;
 import dev.inaka.screenshots.ImageProperties;
 
@@ -49,14 +47,20 @@ public class ConversionHelper {
      * @param options Chromium options to add to the request entity.
      */
     void buildChromiumOptions(AbstractOptions options) {
-        Field[] fields = ChromiumOptions.class.getDeclaredFields();
+        Field[] fields = AbstractOptions.class.getDeclaredFields();
         try {
             for (Field field : fields) {
                 field.setAccessible(true);
                 Object value = field.get(options);
                 if (value != null) {
-                    if (field.getDeclaringClass().equals(File.class)) {
+                    if (value instanceof File) {
                         jotenberg.getBuilder().addBinaryBody(field.getName(), (File) value);
+                    } else if (value instanceof java.util.List) {
+                        @SuppressWarnings("unchecked")
+                        java.util.List<File> fileList = (java.util.List<File>) value;
+                        for (File file : fileList) {
+                            jotenberg.getBuilder().addBinaryBody("embeds", file);
+                        }
                     } else {
                         jotenberg.getBuilder().addTextBody(field.getName(), (String) value);
                     }
@@ -127,20 +131,32 @@ public class ConversionHelper {
         }
     }
 
-    
+
     /**
      * Builds PDF engines options using reflection and adds them to the request entity.
      *
      * @param options PDF engines options to add to the request entity.
      */
     public void buildPdfEngineOptions(PDFEnginesOptions options) {
-        Field[] fields = PDFEnginesMergeOptions.class.getDeclaredFields();
+        if (options == null) {
+            return;
+        }
+
+        Field[] fields = options.getClass().getDeclaredFields();
         try {
             for (Field field : fields) {
                 field.setAccessible(true);
                 Object value = field.get(options);
                 if (value != null) {
-                    jotenberg.getBuilder().addTextBody(field.getName(), (String) value);
+                    if (value instanceof java.util.List) {
+                        @SuppressWarnings("unchecked")
+                        java.util.List<File> fileList = (java.util.List<File>) value;
+                        for (File file : fileList) {
+                            jotenberg.getBuilder().addBinaryBody("embeds", file);
+                        }
+                    } else {
+                        jotenberg.getBuilder().addTextBody(field.getName(), (String) value);
+                    }
                 }
             }
         } catch (IllegalAccessException e) {
