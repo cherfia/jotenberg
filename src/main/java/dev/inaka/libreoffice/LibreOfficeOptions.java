@@ -2,6 +2,8 @@ package dev.inaka.libreoffice;
 
 import dev.inaka.common.PdfFormat;
 
+import java.io.File;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -15,6 +17,12 @@ public final class LibreOfficeOptions {
     private final String losslessImageCompression;
     private final String reduceImageResolution;
     private final String maxImageResolution;
+    private final String downloadFrom;
+    private final String split;
+    private final String flatten;
+    private final String userPassword;
+    private final String ownerPassword;
+    private final List<File> embeds;
 
     private LibreOfficeOptions(Builder builder) {
         merge = builder.merge;
@@ -24,6 +32,12 @@ public final class LibreOfficeOptions {
         reduceImageResolution = builder.reduceImageResolution;
         quality = builder.quality;
         maxImageResolution = builder.maxImageResolution;
+        downloadFrom = builder.downloadFrom;
+        split = builder.split;
+        flatten = builder.flatten;
+        userPassword = builder.userPassword;
+        ownerPassword = builder.ownerPassword;
+        embeds = builder.embeds;
     }
 
     /**
@@ -37,6 +51,12 @@ public final class LibreOfficeOptions {
         private String reduceImageResolution = "true";
         private String quality = "90";
         private String maxImageResolution = "300";
+        private String downloadFrom = null;
+        private String split = null;
+        private String flatten = null;
+        private String userPassword = null;
+        private String ownerPassword = null;
+        private List<File> embeds = null;
 
         /**
          * Sets whether to enable lossless image compression to tweak image conversion performance.
@@ -131,6 +151,72 @@ public final class LibreOfficeOptions {
          */
         public String getQuality() {
             return quality;
+        }
+
+        /**
+         * Sets the download from configuration.
+         *
+         * @param downloadFrom Download from configuration as JSON string.
+         * @return The Builder instance for method chaining.
+         */
+        public Builder addDownloadFrom(String downloadFrom) {
+            this.downloadFrom = downloadFrom;
+            return this;
+        }
+
+        /**
+         * Sets the split configuration.
+         *
+         * @param split Split configuration as JSON string.
+         * @return The Builder instance for method chaining.
+         */
+        public Builder addSplit(String split) {
+            this.split = split;
+            return this;
+        }
+
+        /**
+         * Sets whether to flatten the PDF document.
+         *
+         * @param flatten `true` to flatten the PDF document, `false` otherwise.
+         * @return The Builder instance for method chaining.
+         */
+        public Builder addFlatten(boolean flatten) {
+            this.flatten = String.valueOf(flatten);
+            return this;
+        }
+
+        /**
+         * Sets the user password for opening the resulting PDF(s).
+         *
+         * @param userPassword User password.
+         * @return The Builder instance for method chaining.
+         */
+        public Builder addUserPassword(String userPassword) {
+            this.userPassword = userPassword;
+            return this;
+        }
+
+        /**
+         * Sets the owner password for full access on the resulting PDF(s).
+         *
+         * @param ownerPassword Owner password.
+         * @return The Builder instance for method chaining.
+         */
+        public Builder addOwnerPassword(String ownerPassword) {
+            this.ownerPassword = ownerPassword;
+            return this;
+        }
+
+        /**
+         * Sets the files to embed in the generated PDF.
+         *
+         * @param embeds List of files to embed.
+         * @return The Builder instance for method chaining.
+         */
+        public Builder addEmbeds(List<File> embeds) {
+            this.embeds = embeds;
+            return this;
         }
 
         /**

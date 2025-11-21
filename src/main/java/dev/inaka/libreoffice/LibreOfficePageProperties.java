@@ -24,6 +24,7 @@ public final class LibreOfficePageProperties {
     private final String exportHiddenSlides;
     private final String skipEmptyPages;
     private final String addOriginalDocumentAsStream;
+    private final String password;
 
     private LibreOfficePageProperties(Builder builder) {
         landscape = builder.landscape;
@@ -43,6 +44,7 @@ public final class LibreOfficePageProperties {
         exportHiddenSlides = builder.exportHiddenSlides;
         skipEmptyPages = builder.skipEmptyPages;
         addOriginalDocumentAsStream = builder.addOriginalDocumentAsStream;
+        password = builder.password;
 
     }
 
@@ -67,6 +69,7 @@ public final class LibreOfficePageProperties {
         private String exportHiddenSlides = "false";
         private String skipEmptyPages = "false";
         private String addOriginalDocumentAsStream = "false";
+        private String password = null;
 
 
         /**
@@ -258,6 +261,17 @@ public final class LibreOfficePageProperties {
          */
         public Builder addAddOriginalDocumentAsStream(boolean addOriginalDocumentAsStream) {
             this.addOriginalDocumentAsStream = String.valueOf(addOriginalDocumentAsStream);
+            return this;
+        }
+
+        /**
+         * Sets the password to open the document.
+         *
+         * @param password Password to open the document.
+         * @return The Builder instance for method chaining.
+         */
+        public Builder addPassword(String password) {
+            this.password = password;
             return this;
         }
 
