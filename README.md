@@ -14,6 +14,7 @@ To incorporate `jotenberg` into your project, follow the snippets below for Apac
 First, add the GitHub Packages repository to your `pom.xml`:
 
 ```xml
+
 <repositories>
     <repository>
         <id>github</id>
@@ -25,6 +26,7 @@ First, add the GitHub Packages repository to your `pom.xml`:
 Then add the dependency:
 
 ```xml
+
 <dependency>
     <groupId>dev.inaka</groupId>
     <artifactId>jotenberg</artifactId>
@@ -36,6 +38,7 @@ Then add the dependency:
 permission and add it to your `~/.m2/settings.xml`:
 
 ```xml
+
 <settings>
     <servers>
         <server>
@@ -171,14 +174,14 @@ accepts `ImageProperties` and `ScreenshotOptions` parameters.
 ```java
 // Screenshot a URL
 ImageProperties imageProperties = new ImageProperties.Builder()
-    .addFormat("png")
-    .addWidth(1920)
-    .addHeight(1080)
-    .build();
+                .addFormat("png")
+                .addWidth(1920)
+                .addHeight(1080)
+                .build();
 
 ScreenshotOptions screenshotOptions = new ScreenshotOptions.Builder()
-    .addOptimizeForSpeed(true)
-    .build();
+        .addOptimizeForSpeed(true)
+        .build();
 
 CloseableHttpResponse response = client.capture("https://gotenberg.dev/", imageProperties, screenshotOptions);
 ```
@@ -257,14 +260,18 @@ The supported formats can be found in `PdfFormat`.
 
 ```java
 List<File> files = new ArrayList<>();
-files.add(new File("path/to/first.pdf"));
-files.add(new File("path/to/second.pdf"));
+files.
+
+add(new File("path/to/first.pdf"));
+        files.
+
+add(new File("path/to/second.pdf"));
 
 PDFEnginesConversionOptions options = new PDFEnginesConversionOptions.Builder()
-    .addPdfa(PdfFormat.A_3B)
-    .addPdfua("false")
-    .addDownloadFrom("{\"url\":\"https://example.com/file.pdf\"}")
-    .build();
+        .addPdfa(PdfFormat.A_3B)
+        .addPdfua("false")
+        .addDownloadFrom("{\"url\":\"https://example.com/file.pdf\"}")
+        .build();
 
 CloseableHttpResponse response = client.convertWithPdfEngines(files, options);
 ```
@@ -275,18 +282,24 @@ Merge PDF files alphabetically.
 
 ```java
 List<File> files = new ArrayList<>();
-files.add(new File("path/to/first.pdf"));
-files.add(new File("path/to/second.pdf"));
+files.
+
+add(new File("path/to/first.pdf"));
+        files.
+
+add(new File("path/to/second.pdf"));
 
 JSONObject metadata = new JSONObject();
-metadata.put("Title", "Merged Document");
+metadata.
+
+put("Title","Merged Document");
 
 PDFEnginesMergeOptions options = new PDFEnginesMergeOptions.Builder()
-    .addPdfa(PdfFormat.A_1A)
-    .addMetadata(metadata)
-    .addFlatten(true)
-    .addDownloadFrom("{\"url\":\"https://example.com/file.pdf\"}")
-    .build();
+        .addPdfa(PdfFormat.A_1A)
+        .addMetadata(metadata)
+        .addFlatten(true)
+        .addDownloadFrom("{\"url\":\"https://example.com/file.pdf\"}")
+        .build();
 
 CloseableHttpResponse response = client.mergeWithPdfEngines(files, options);
 ```
@@ -297,7 +310,9 @@ Read metadata from PDF files.
 
 ```java
 List<File> files = new ArrayList<>();
-files.add(new File("path/to/document.pdf"));
+files.
+
+add(new File("path/to/document.pdf"));
 
 CloseableHttpResponse response = client.readMetadataWithPdfEngines(files);
 ```
@@ -308,11 +323,17 @@ Write metadata to PDF files.
 
 ```java
 List<File> files = new ArrayList<>();
-files.add(new File("path/to/document.pdf"));
+files.
+
+add(new File("path/to/document.pdf"));
 
 JSONObject metadata = new JSONObject();
-metadata.put("Title", "My Document");
-metadata.put("Author", "John Doe");
+metadata.
+
+put("Title","My Document");
+metadata.
+
+put("Author","John Doe");
 
 CloseableHttpResponse response = client.writeMetadataWithPdfEngines(files, metadata.toString());
 ```
@@ -323,24 +344,26 @@ Split PDF files into multiple files.
 
 ```java
 List<File> files = new ArrayList<>();
-files.add(new File("path/to/document.pdf"));
+files.
+
+add(new File("path/to/document.pdf"));
 
 // Split by pages (e.g., every 2 pages)
 CloseableHttpResponse response = client.splitWithPdfEngines(
-    files, 
-    "pages", 
-    "2", 
-    true,  // unify
-    false  // flatten
+        files,
+        "pages",
+        "2",
+        true,  // unify
+        false  // flatten
 );
 
 // Split by intervals (e.g., every 5 seconds)
 CloseableHttpResponse response = client.splitWithPdfEngines(
-    files, 
-    "intervals", 
-    "5s", 
-    null,  // unify (not applicable for intervals)
-    false  // flatten
+        files,
+        "intervals",
+        "5s",
+        null,  // unify (not applicable for intervals)
+        false  // flatten
 );
 ```
 
@@ -350,7 +373,9 @@ Flatten PDF files.
 
 ```java
 List<File> files = new ArrayList<>();
-files.add(new File("path/to/document.pdf"));
+files.
+
+add(new File("path/to/document.pdf"));
 
 CloseableHttpResponse response = client.flattenWithPdfEngines(files);
 ```
@@ -361,12 +386,14 @@ Encrypt PDF files.
 
 ```java
 List<File> files = new ArrayList<>();
-files.add(new File("path/to/document.pdf"));
+files.
+
+add(new File("path/to/document.pdf"));
 
 PDFEnginesEncryptOptions encryptOptions = new PDFEnginesEncryptOptions.Builder()
-    .addUserPassword("user123")
-    .addOwnerPassword("owner123")
-    .build();
+        .addUserPassword("user123")
+        .addOwnerPassword("owner123")
+        .build();
 
 CloseableHttpResponse response = client.encryptWithPdfEngines(files, encryptOptions);
 ```
@@ -377,11 +404,17 @@ Embed files into PDF files.
 
 ```java
 List<File> pdfFiles = new ArrayList<>();
-pdfFiles.add(new File("path/to/document.pdf"));
+pdfFiles.
+
+add(new File("path/to/document.pdf"));
 
 List<File> embeds = new ArrayList<>();
-embeds.add(new File("path/to/attachment.txt"));
-embeds.add(new File("path/to/image.png"));
+embeds.
+
+add(new File("path/to/attachment.txt"));
+        embeds.
+
+add(new File("path/to/image.png"));
 
 CloseableHttpResponse response = client.embedWithPdfEngines(pdfFiles, embeds);
 ```
@@ -391,9 +424,9 @@ CloseableHttpResponse response = client.embedWithPdfEngines(pdfFiles, embeds);
 The following is a short snippet of how to use the library.
 
 ```java
-import dev.inaka.Jotenberg;
-import dev.inaka.chromium.ChromiumOptions;
-import dev.inaka.chromium.ChromiumPageProperties;
+import io.bitizens.Jotenberg;
+import chromium.io.bitizens.ChromiumOptions;
+import chromium.io.bitizens.ChromiumPageProperties;
 import org.apache.commons.io.FileUtils;
 
 import java.nio.file.Files;
@@ -403,7 +436,7 @@ public class Main {
     public static void main(String[] args) {
         try (var client = new Jotenberg("http://localhost:8090/")) {
             var url = "https://gotenberg.dev/";
-            
+
             var pageProperties = new ChromiumPageProperties.Builder()
                     .addMarginTop(1.0f)
                     .addMarginLeft(0.5f)
@@ -411,12 +444,12 @@ public class Main {
                     .addMarginRight(0.5f)
                     .addPrintBackground(true)
                     .build();
-            
+
             var options = new ChromiumOptions.Builder()
                     .addFailOnConsoleExceptions(false)
                     .addSkipNetworkIdleEvent(false)
                     .build();
-            
+
             var response = client.convert(url, pageProperties, options);
             var projectDir = Paths.get("").toAbsolutePath().normalize();
             var tempDir = Files.createTempDirectory(projectDir, "temp_");
@@ -433,11 +466,11 @@ public class Main {
 ### Advanced Example with New Features
 
 ```java
-import dev.inaka.Jotenberg;
-import dev.inaka.chromium.ChromiumOptions;
-import dev.inaka.chromium.ChromiumPageProperties;
-import dev.inaka.pdfengines.PDFEnginesMergeOptions;
-import dev.inaka.common.PdfFormat;
+import io.bitizens.Jotenberg;
+import chromium.io.bitizens.ChromiumOptions;
+import chromium.io.bitizens.ChromiumPageProperties;
+import pdfengines.io.bitizens.PDFEnginesMergeOptions;
+import common.io.bitizens.PdfFormat;
 import org.json.JSONObject;
 
 import java.io.File;
