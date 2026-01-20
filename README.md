@@ -756,6 +756,11 @@ public class Main {
                 .build();
 
             CloseableHttpResponse response = client.convert(url, pageProperties, options);
+            
+            var status = response.getStatusLine().getStatusCode();
+            if (status != 200) {
+                throw new RuntimeException("Gotenberg PDF rendering failed with status: " + status);
+            }
 
             // Save the PDF to a file
             var projectDir = Paths.get("").toAbsolutePath().normalize();
