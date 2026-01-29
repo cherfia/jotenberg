@@ -329,9 +329,11 @@ In addition to the `ChromiumPageProperties` customization options, the `convert(
 - `emulatedMediaType` - Emulated media type (screen or print)
 - `waitDelay` - Duration to wait when loading an HTML document before conversion
 - `waitForExpression` - JavaScript expression to wait before converting
+- `waitForSelector` - CSS selector to wait for before converting
 - `extraHttpHeaders` - Additional HTTP headers as JSON object
 - `failOnHttpStatusCodes` - HTTP status codes to fail on
 - `failOnResourceHttpStatusCodes` - HTTP status codes to fail on for resources
+- `ignoreResourceHttpStatusDomains` - Domains to exclude from resource HTTP status code checks
 - `failOnResourceLoadingFailed` - Whether to fail on resource loading failed
 - `failOnConsoleExceptions` - Whether to fail on console exceptions
 - `skipNetworkIdleEvent` - Whether to skip network idle event
@@ -362,8 +364,11 @@ Furthermore, alongside the customization options offered by `ImageProperties`, t
 - `emulatedMediaType` - Emulated media type (screen or print)
 - `waitDelay` - Duration (e.g, '5s') to wait when loading an HTML document before conversion
 - `waitForExpression` - JavaScript's expression to wait before converting an HTML document into PDF until it returns true
+- `waitForSelector` - CSS selector (e.g., '#id', '.class') to wait for before converting
 - `extraHttpHeaders` - Additional HTTP headers as JSON object
 - `failOnHttpStatusCodes` - Return a 409 Conflict response if the HTTP status code is in the list (default [499,599])
+- `failOnResourceHttpStatusCodes` - HTTP status codes to fail on for resources
+- `ignoreResourceHttpStatusDomains` - Domains to exclude from resource HTTP status code checks
 - `failOnConsoleExceptions` - Return a 409 Conflict response if there are exceptions in the Chromium console (default false)
 - `skipNetworkIdleEvent` - Do not wait for Chromium network to be idle (default true)
 - `optimizeForSpeed` - Define whether to optimize image encoding for speed, not for resulting size
