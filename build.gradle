@@ -5,7 +5,7 @@ plugins {
 }
 
 group 'io.bitizens'
-version '2.0.0'
+version '2.1.0'
 
 dependencies {
     implementation 'org.apache.httpcomponents:httpclient:4.5.14'
@@ -47,7 +47,7 @@ publishing {
         mavenJava(MavenPublication) {
             groupId = 'io.bitizens'
             artifactId = 'jotenberg'
-            version = '2.0.0'
+            version = '2.1.0'
             from components.java
             versionMapping {
                 usage('java-api') {
