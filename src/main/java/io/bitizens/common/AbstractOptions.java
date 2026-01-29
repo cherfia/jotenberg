@@ -18,6 +18,7 @@ public abstract class AbstractOptions {
     protected final String emulatedMediaType;
     protected final String waitDelay;
     protected final String waitForExpression;
+    protected final String waitForSelector;
     protected final String extraHttpHeaders;
     protected final String failOnConsoleExceptions;
     protected final String failOnHttpStatusCodes;
@@ -40,6 +41,7 @@ public abstract class AbstractOptions {
         emulatedMediaType = builder.emulatedMediaType;
         waitDelay = builder.waitDelay;
         waitForExpression = builder.waitForExpression;
+        waitForSelector = builder.waitForSelector;
         extraHttpHeaders = builder.extraHttpHeaders;
         failOnConsoleExceptions = builder.failOnConsoleExceptions;
         failOnHttpStatusCodes = builder.failOnHttpStatusCodes;
@@ -67,6 +69,7 @@ public abstract class AbstractOptions {
         protected String emulatedMediaType = EmulatedMediaType.PRINT.mediaType();
         protected String waitDelay = null;
         protected String waitForExpression = null;
+        protected String waitForSelector = null;
         protected String extraHttpHeaders = null;
         protected String failOnConsoleExceptions = "false";
         protected String failOnHttpStatusCodes = "[499,599]";
@@ -143,6 +146,17 @@ public abstract class AbstractOptions {
          */
         public Builder<T> addWaitForExpression(String waitForExpression) {
             this.waitForExpression = waitForExpression;
+            return this;
+        }
+
+        /**
+         * Sets the CSS selector to wait for before converting.
+         *
+         * @param waitForSelector CSS selector (e.g., '#id', '.class') to query before converting an HTML document into PDF until it matches a node.
+         * @return The Builder instance for method chaining.
+         */
+        public Builder<T> addWaitForSelector(String waitForSelector) {
+            this.waitForSelector = waitForSelector;
             return this;
         }
 
