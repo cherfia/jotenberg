@@ -22,6 +22,7 @@ public abstract class AbstractOptions {
     protected final String failOnConsoleExceptions;
     protected final String failOnHttpStatusCodes;
     protected final String failOnResourceHttpStatusCodes;
+    protected final String ignoreResourceHttpStatusDomains;
     protected final String failOnResourceLoadingFailed;
     protected final String skipNetworkIdleEvent;
     protected final String generateDocumentOutline;
@@ -43,6 +44,7 @@ public abstract class AbstractOptions {
         failOnConsoleExceptions = builder.failOnConsoleExceptions;
         failOnHttpStatusCodes = builder.failOnHttpStatusCodes;
         failOnResourceHttpStatusCodes = builder.failOnResourceHttpStatusCodes;
+        ignoreResourceHttpStatusDomains = builder.ignoreResourceHttpStatusDomains;
         failOnResourceLoadingFailed = builder.failOnResourceLoadingFailed;
         skipNetworkIdleEvent = builder.skipNetworkIdleEvent;
         generateDocumentOutline = builder.generateDocumentOutline;
@@ -69,6 +71,7 @@ public abstract class AbstractOptions {
         protected String failOnConsoleExceptions = "false";
         protected String failOnHttpStatusCodes = "[499,599]";
         protected String failOnResourceHttpStatusCodes = null;
+        protected String ignoreResourceHttpStatusDomains = null;
         protected String failOnResourceLoadingFailed = null;
         protected String skipNetworkIdleEvent = "false";
         protected String generateDocumentOutline = null;
@@ -213,6 +216,32 @@ public abstract class AbstractOptions {
             }
             sb.append("]");
             this.failOnResourceHttpStatusCodes = sb.toString();
+            return this;
+        }
+
+        /**
+         * Sets the domains to ignore when checking resource HTTP status codes.
+         * Values are normalized (trimmed, lowercased) and may be provided as:
+         * - example.com
+         * - *.example.com or .example.com
+         * - example.com:443 (port is ignored)
+         * - https://example.com/path (scheme/path are ignored)
+         *
+         * A match happens if the hostname equals the domain or is a subdomain of it.
+         *
+         * @param ignoreResourceHttpStatusDomains List of domain names to ignore.
+         * @return The Builder instance for method chaining.
+         */
+        public Builder<T> addIgnoreResourceHttpStatusDomains(ArrayList<String> ignoreResourceHttpStatusDomains) {
+            StringBuilder sb = new StringBuilder("[");
+            for (int i = 0; i < ignoreResourceHttpStatusDomains.size(); i++) {
+                sb.append("\"").append(ignoreResourceHttpStatusDomains.get(i)).append("\"");
+                if (i < ignoreResourceHttpStatusDomains.size() - 1) {
+                    sb.append(",");
+                }
+            }
+            sb.append("]");
+            this.ignoreResourceHttpStatusDomains = sb.toString();
             return this;
         }
 
