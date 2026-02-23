@@ -2,6 +2,7 @@ package io.bitizens.common;
 
 import io.bitizens.common.exceptions.FooterFileNotFoundExceptions;
 import io.bitizens.common.exceptions.HeaderFileNotFoundExceptions;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -16,6 +17,7 @@ public abstract class AbstractOptions {
     protected final File header;
     protected final File footer;
     protected final String emulatedMediaType;
+    protected final String emulatedMediaFeatures;
     protected final String waitDelay;
     protected final String waitForExpression;
     protected final String waitForSelector;
@@ -39,6 +41,7 @@ public abstract class AbstractOptions {
         header = builder.header;
         footer = builder.footer;
         emulatedMediaType = builder.emulatedMediaType;
+        emulatedMediaFeatures = builder.emulatedMediaFeatures;
         waitDelay = builder.waitDelay;
         waitForExpression = builder.waitForExpression;
         waitForSelector = builder.waitForSelector;
@@ -67,6 +70,7 @@ public abstract class AbstractOptions {
         protected File header = null;
         protected File footer = null;
         protected String emulatedMediaType = EmulatedMediaType.PRINT.mediaType();
+        protected String emulatedMediaFeatures = null;
         protected String waitDelay = null;
         protected String waitForExpression = null;
         protected String waitForSelector = null;
@@ -124,6 +128,28 @@ public abstract class AbstractOptions {
          */
         public Builder<T> addEmulatedMediaType(EmulatedMediaType emulatedMediaType) {
             this.emulatedMediaType = emulatedMediaType.mediaType();
+            return this;
+        }
+
+        /**
+         * Sets the emulated media features (JSON array of objects) to override CSS media features (e.g., prefers-color-scheme).
+         *
+         * @param emulatedMediaFeatures JSON array string (e.g., [{"name": "prefers-color-scheme", "value": "dark"}]).
+         * @return The Builder instance for method chaining.
+         */
+        public Builder<T> addEmulatedMediaFeatures(String emulatedMediaFeatures) {
+            this.emulatedMediaFeatures = emulatedMediaFeatures;
+            return this;
+        }
+
+        /**
+         * Sets the emulated media features (JSON array) to override CSS media features (e.g., prefers-color-scheme).
+         *
+         * @param emulatedMediaFeatures JSON array of objects with name and value.
+         * @return The Builder instance for method chaining.
+         */
+        public Builder<T> addEmulatedMediaFeatures(JSONArray emulatedMediaFeatures) {
+            this.emulatedMediaFeatures = String.valueOf(emulatedMediaFeatures);
             return this;
         }
 
@@ -240,7 +266,7 @@ public abstract class AbstractOptions {
          * - *.example.com or .example.com
          * - example.com:443 (port is ignored)
          * - https://example.com/path (scheme/path are ignored)
-         *
+         * <p>
          * A match happens if the hostname equals the domain or is a subdomain of it.
          *
          * @param ignoreResourceHttpStatusDomains List of domain names to ignore.
