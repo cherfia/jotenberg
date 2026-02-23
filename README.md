@@ -7,27 +7,27 @@ a variety of document formats to PDF files.
 # Table of Contents
 
 1. [Getting Started](#getting-started)
-   - [Installation](#installation)
-   - [Prerequisites](#prerequisites)
-   - [Configuration](#configuration)
+    - [Installation](#installation)
+    - [Prerequisites](#prerequisites)
+    - [Configuration](#configuration)
 2. [Authentication](#authentication)
-   - [Basic Authentication](#basic-authentication)
-   - [Advanced Authentication](#advanced-authentication)
+    - [Basic Authentication](#basic-authentication)
+    - [Advanced Authentication](#advanced-authentication)
 3. [Core Features](#core-features)
-   - [Chromium](#chromium)
-     - [URL](#url)
-     - [HTML](#html)
-     - [Markdown](#markdown)
-     - [Screenshot](#screenshot)
-   - [LibreOffice](#libreoffice)
-   - [PDF Engines](#pdf-engines)
-     - [Format Conversion](#format-conversion)
-     - [Merging](#merging)
-     - [Metadata Management](#metadata-management)
-   - [PDF Splitting](#pdf-splitting)
-   - [PDF Flattening](#pdf-flattening)
-   - [PDF Encryption](#pdf-encryption)
-   - [Embedding Files](#embedding-files)
+    - [Chromium](#chromium)
+        - [URL](#url)
+        - [HTML](#html)
+        - [Markdown](#markdown)
+        - [Screenshot](#screenshot)
+    - [LibreOffice](#libreoffice)
+    - [PDF Engines](#pdf-engines)
+        - [Format Conversion](#format-conversion)
+        - [Merging](#merging)
+        - [Metadata Management](#metadata-management)
+    - [PDF Splitting](#pdf-splitting)
+    - [PDF Flattening](#pdf-flattening)
+    - [PDF Encryption](#pdf-encryption)
+    - [Embedding Files](#embedding-files)
 4. [Usage Example](#usage-example)
 
 ## Getting Started
@@ -39,6 +39,7 @@ a variety of document formats to PDF files.
 First, add the GitHub Packages repository to your `pom.xml`:
 
 ```xml
+
 <repositories>
     <repository>
         <id>github</id>
@@ -50,10 +51,11 @@ First, add the GitHub Packages repository to your `pom.xml`:
 Then add the dependency:
 
 ```xml
+
 <dependency>
     <groupId>io.bitizens</groupId>
     <artifactId>jotenberg</artifactId>
-    <version>2.1.0</version>
+    <version>2.2.0</version>
 </dependency>
 ```
 
@@ -61,6 +63,7 @@ Then add the dependency:
 permission and add it to your `~/.m2/settings.xml`:
 
 ```xml
+
 <settings>
     <servers>
         <server>
@@ -92,7 +95,7 @@ repositories {
 Then add the dependency:
 
 ```gradle
-implementation group: 'io.bitizens', name: 'jotenberg', version: '2.1.0'
+implementation group: 'io.bitizens', name: 'jotenberg', version: '2.2.0'
 ```
 
 **Note:** You'll need to authenticate with GitHub Packages. Create a personal access token with `read:packages`
@@ -111,7 +114,8 @@ docker run --rm -p 3000:3000 gotenberg/gotenberg:8
 
 ### Configuration
 
-Jotenberg uses constructor-based configuration. Create an instance of `Jotenberg` class and pass your Gotenberg endpoint URL as a constructor parameter:
+Jotenberg uses constructor-based configuration. Create an instance of `Jotenberg` class and pass your Gotenberg endpoint
+URL as a constructor parameter:
 
 ```java
 import io.bitizens.Jotenberg;
@@ -123,7 +127,9 @@ Jotenberg client = new Jotenberg("http://localhost:3000");
 
 ### Basic Authentication
 
-Gotenberg introduces basic authentication support starting from version [8.4.0](https://github.com/gotenberg/gotenberg/releases/tag/v8.4.0). Suppose you are running a Docker container using the command below:
+Gotenberg introduces basic authentication support starting from
+version [8.4.0](https://github.com/gotenberg/gotenberg/releases/tag/v8.4.0). Suppose you are running a Docker container
+using the command below:
 
 ```bash
 docker run --rm -p 3000:3000 \
@@ -132,13 +138,17 @@ docker run --rm -p 3000:3000 \
 gotenberg/gotenberg:8.4.0 gotenberg --api-enable-basic-auth
 ```
 
-To integrate this setup with Jotenberg, you need to configure the HTTP client with basic authentication. You can extend the `Jotenberg` class or configure the underlying HTTP client to include authentication headers.
+To integrate this setup with Jotenberg, you need to configure the HTTP client with basic authentication. You can extend
+the `Jotenberg` class or configure the underlying HTTP client to include authentication headers.
 
 ### Advanced Authentication
 
-To implement advanced authentication or add custom HTTP headers to your requests, you can configure the underlying HTTP client used by Jotenberg. This allows you to pass additional headers, such as authentication tokens or custom metadata, with each API call.
+To implement advanced authentication or add custom HTTP headers to your requests, you can configure the underlying HTTP
+client used by Jotenberg. This allows you to pass additional headers, such as authentication tokens or custom metadata,
+with each API call.
 
-For example, you can include a Bearer token for authentication along with a custom header by configuring the HTTP client:
+For example, you can include a Bearer token for authentication along with a custom header by configuring the HTTP
+client:
 
 ```java
 import io.bitizens.Jotenberg;
@@ -149,11 +159,11 @@ import org.apache.http.HttpRequest;
 
 // Create a custom HTTP client with authentication
 CloseableHttpClient httpClient = HttpClients.custom()
-    .addInterceptorFirst((HttpRequest request) -> {
-        request.addHeader("Authorization", "Bearer " + token);
-        request.addHeader("X-Custom-Header", "value");
-    })
-    .build();
+        .addInterceptorFirst((HttpRequest request) -> {
+            request.addHeader("Authorization", "Bearer " + token);
+            request.addHeader("X-Custom-Header", "value");
+        })
+        .build();
 
 // Note: Jotenberg currently uses an internal HTTP client.
 // For advanced authentication, you may need to extend the class or modify the HTTPRequestManager.
@@ -169,10 +179,13 @@ input file parameter, such as `html`, `header`, `footer`, and `markdown`, capabl
 ### Chromium
 
 There are three different methods that come with the `Jotenberg` class (i.e. `convert`) which calls one of
-Chromium's [Conversion routes](https://gotenberg.dev/docs/routes#convert-with-chromium) to convert `html` and `markdown` files, or
+Chromium's [Conversion routes](https://gotenberg.dev/docs/routes#convert-with-chromium) to convert `html` and `markdown`
+files, or
 a `url` to a `CloseableHttpResponse` which contains the `HttpEntity` that holds the content of the converted PDF file.
 
-Similarly, a new set of methods have been added to harness the recently introduced Gotenberg [Screenshot routes](https://gotenberg.dev/docs/routes#screenshots-route). These methods include a single method called `capture`, which allows capturing full-page screenshots of `html`, `markdown`, and `url`.
+Similarly, a new set of methods have been added to harness the recently introduced
+Gotenberg [Screenshot routes](https://gotenberg.dev/docs/routes#screenshots-route). These methods include a single
+method called `capture`, which allows capturing full-page screenshots of `html`, `markdown`, and `url`.
 
 #### URL
 
@@ -188,9 +201,9 @@ ChromiumPageProperties pageProperties = new ChromiumPageProperties.Builder().bui
 ChromiumOptions options = new ChromiumOptions.Builder().build();
 
 CloseableHttpResponse response = client.convert(
-    "https://www.example.com/",
-    pageProperties,
-    options
+        "https://www.example.com/",
+        pageProperties,
+        options
 );
 ```
 
@@ -203,17 +216,17 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 Jotenberg client = new Jotenberg("http://localhost:3000");
 
 ImageProperties imageProperties = new ImageProperties.Builder()
-    .addFormat("png")
-    .addWidth(1920)
-    .addHeight(1080)
-    .build();
+        .addFormat("png")
+        .addWidth(1920)
+        .addHeight(1080)
+        .build();
 
 ScreenshotOptions screenshotOptions = new ScreenshotOptions.Builder().build();
 
 CloseableHttpResponse response = client.capture(
-    "https://www.example.com/",
-    imageProperties,
-    screenshotOptions
+        "https://www.example.com/",
+        imageProperties,
+        screenshotOptions
 );
 ```
 
@@ -226,6 +239,7 @@ import io.bitizens.Jotenberg;
 import io.bitizens.chromium.ChromiumPageProperties;
 import io.bitizens.chromium.ChromiumOptions;
 import org.apache.http.client.methods.CloseableHttpResponse;
+
 import java.io.File;
 
 Jotenberg client = new Jotenberg("http://localhost:3000");
@@ -242,14 +256,15 @@ import io.bitizens.Jotenberg;
 import io.bitizens.screenshots.ImageProperties;
 import io.bitizens.screenshots.ScreenshotOptions;
 import org.apache.http.client.methods.CloseableHttpResponse;
+
 import java.io.File;
 
 Jotenberg client = new Jotenberg("http://localhost:3000");
 
 File file = new File("path/to/index.html");
 ImageProperties imageProperties = new ImageProperties.Builder()
-    .addFormat("png")
-    .build();
+        .addFormat("png")
+        .build();
 ScreenshotOptions screenshotOptions = new ScreenshotOptions.Builder().build();
 
 CloseableHttpResponse response = client.capture(file, imageProperties, screenshotOptions);
@@ -264,6 +279,7 @@ import io.bitizens.Jotenberg;
 import io.bitizens.chromium.ChromiumPageProperties;
 import io.bitizens.chromium.ChromiumOptions;
 import org.apache.http.client.methods.CloseableHttpResponse;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -271,8 +287,12 @@ import java.util.List;
 Jotenberg client = new Jotenberg("http://localhost:3000");
 
 List<File> files = new ArrayList<>();
-files.add(new File("path/to/index.html"));
-files.add(new File("path/to/file.md"));
+files.
+
+add(new File("path/to/index.html"));
+        files.
+
+add(new File("path/to/file.md"));
 
 ChromiumPageProperties pageProperties = new ChromiumPageProperties.Builder().build();
 ChromiumOptions options = new ChromiumOptions.Builder().build();
@@ -285,6 +305,7 @@ import io.bitizens.Jotenberg;
 import io.bitizens.screenshots.ImageProperties;
 import io.bitizens.screenshots.ScreenshotOptions;
 import org.apache.http.client.methods.CloseableHttpResponse;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -292,12 +313,16 @@ import java.util.List;
 Jotenberg client = new Jotenberg("http://localhost:3000");
 
 List<File> files = new ArrayList<>();
-files.add(new File("path/to/index.html"));
-files.add(new File("path/to/file.md"));
+files.
+
+add(new File("path/to/index.html"));
+        files.
+
+add(new File("path/to/file.md"));
 
 ImageProperties imageProperties = new ImageProperties.Builder()
-    .addFormat("png")
-    .build();
+        .addFormat("png")
+        .build();
 ScreenshotOptions screenshotOptions = new ScreenshotOptions.Builder().build();
 
 CloseableHttpResponse response = client.capture(files, imageProperties, screenshotOptions);
@@ -322,11 +347,14 @@ file will look like. The `ChromiumPageProperties` class supports the following p
 - `pdfa` - PDF format of the conversion resulting file
 - `nativePdfFormat` - Native PDF format (default PDF/A-1a)
 
-In addition to the `ChromiumPageProperties` customization options, the `convert()` method also accepts a `ChromiumOptions` parameter to further enhance the versatility of the conversion process. Here's an overview of the available options:
+In addition to the `ChromiumPageProperties` customization options, the `convert()` method also accepts a
+`ChromiumOptions` parameter to further enhance the versatility of the conversion process. Here's an overview of the
+available options:
 
 - `header` - Header HTML file
 - `footer` - Footer HTML file
 - `emulatedMediaType` - Emulated media type (screen or print)
+- `emulatedMediaFeatures` - JSON array of objects to override CSS media features (e.g., prefers-color-scheme)
 - `waitDelay` - Duration to wait when loading an HTML document before conversion
 - `waitForExpression` - JavaScript expression to wait before converting
 - `waitForSelector` - CSS selector to wait for before converting
@@ -348,39 +376,49 @@ In addition to the `ChromiumPageProperties` customization options, the `convert(
 
 #### Screenshot
 
-Similarly, the `capture()` method takes an `ImageProperties` parameter, influencing the appearance of the captured screenshot file.
+Similarly, the `capture()` method takes an `ImageProperties` parameter, influencing the appearance of the captured
+screenshot file.
 
 - `format` - The image compression format, either "png", "jpeg" or "webp" (default "png")
 - `quality` - The compression quality from range 0 to 100 (jpeg only)
-- `omitBackground` - Hide the default white background and allow generating screenshots with transparency (default false)
+- `omitBackground` - Hide the default white background and allow generating screenshots with transparency (default
+  false)
 - `width` - The device screen width in pixels (default 800)
 - `height` - The device screen height in pixels (default 600)
 - `clip` - Define whether to clip the screenshot according to the device dimensions (default false)
 
-Furthermore, alongside the customization options offered by `ImageProperties`, the `capture()` method accommodates a `ScreenshotOptions` parameter to expand the versatility of the screenshot process. Below is a comprehensive overview of all options available:
+Furthermore, alongside the customization options offered by `ImageProperties`, the `capture()` method accommodates a
+`ScreenshotOptions` parameter to expand the versatility of the screenshot process. Below is a comprehensive overview of
+all options available:
 
 - `header` - Header HTML file
 - `footer` - Footer HTML file
 - `emulatedMediaType` - Emulated media type (screen or print)
+- `emulatedMediaFeatures` - JSON array of objects to override CSS media features (e.g., prefers-color-scheme)
 - `waitDelay` - Duration (e.g, '5s') to wait when loading an HTML document before conversion
-- `waitForExpression` - JavaScript's expression to wait before converting an HTML document into PDF until it returns true
+- `waitForExpression` - JavaScript's expression to wait before converting an HTML document into PDF until it returns
+  true
 - `waitForSelector` - CSS selector (e.g., '#id', '.class') to wait for before converting
 - `extraHttpHeaders` - Additional HTTP headers as JSON object
 - `failOnHttpStatusCodes` - Return a 409 Conflict response if the HTTP status code is in the list (default [499,599])
 - `failOnResourceHttpStatusCodes` - HTTP status codes to fail on for resources
 - `ignoreResourceHttpStatusDomains` - Domains to exclude from resource HTTP status code checks
-- `failOnConsoleExceptions` - Return a 409 Conflict response if there are exceptions in the Chromium console (default false)
+- `failOnConsoleExceptions` - Return a 409 Conflict response if there are exceptions in the Chromium console (default
+  false)
 - `skipNetworkIdleEvent` - Do not wait for Chromium network to be idle (default true)
 - `optimizeForSpeed` - Define whether to optimize image encoding for speed, not for resulting size
 - `cookies` - Cookies to be written (as JSON string)
-- `downloadFrom` - Download the file from a specific URL. It must return a Content-Disposition header with a filename parameter
+- `downloadFrom` - Download the file from a specific URL. It must return a Content-Disposition header with a filename
+  parameter
 - `userPassword` - Password for opening the resulting PDF(s)
 - `ownerPassword` - Password for full access on the resulting PDF(s)
 - `embeds` - Files to embed in the generated PDF
 
 ### LibreOffice
 
-The `Jotenberg` class comes with a `convertWithLibreOffice` method. This method interacts with [LibreOffice](https://gotenberg.dev/docs/routes#convert-with-libreoffice) route to convert different documents to PDF files. You can find the file extensions
+The `Jotenberg` class comes with a `convertWithLibreOffice` method. This method interacts
+with [LibreOffice](https://gotenberg.dev/docs/routes#convert-with-libreoffice) route to convert different documents to
+PDF files. You can find the file extensions
 accepted [here](https://gotenberg.dev/docs/routes#convert-with-libreoffice).
 
 ```java
@@ -388,6 +426,7 @@ import io.bitizens.Jotenberg;
 import io.bitizens.libreoffice.LibreOfficePageProperties;
 import io.bitizens.libreoffice.LibreOfficeOptions;
 import org.apache.http.client.methods.CloseableHttpResponse;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -395,8 +434,12 @@ import java.util.List;
 Jotenberg client = new Jotenberg("http://localhost:3000");
 
 List<File> files = new ArrayList<>();
-files.add(new File("path/to/file.docx"));
-files.add(new File("path/to/file.png"));
+files.
+
+add(new File("path/to/file.docx"));
+        files.
+
+add(new File("path/to/file.png"));
 
 LibreOfficePageProperties pageProperties = new LibreOfficePageProperties.Builder().build();
 LibreOfficeOptions options = new LibreOfficeOptions.Builder().build();
@@ -406,34 +449,45 @@ CloseableHttpResponse response = client.convertWithLibreOffice(files, pageProper
 
 Similarly to Chromium's route `convert` method, this method takes the following optional parameters:
 
-- `pageProperties`: changes how the PDF generated file will look like. It also includes a `password` parameter to open the source file.
+- `pageProperties`: changes how the PDF generated file will look like. It also includes a `password` parameter to open
+  the source file.
 - `options`: includes:
-  - `merge` - merges all the resulting files from the conversion into an individual PDF file
-  - `pdfa` - PDF format of the conversion resulting file (i.e. `PDF/A-1a`, `PDF/A-2b`, `PDF/A-3b`)
-  - `pdfUA` - enables PDF for Universal Access for optimal accessibility
-  - `metadata` - writes metadata to the generated PDF file
-  - `losslessImageCompression` - allows turning lossless compression on or off to tweak image conversion performance
-  - `reduceImageResolution` - allows turning on or off image resolution reduction to tweak image conversion performance
-  - `quality` - specifies the quality of the JPG export. The value ranges from 1 to 100, with higher values producing higher-quality images and larger file sizes
-  - `maxImageResolution` - specifies if all images will be reduced to the specified DPI value. Possible values are: `75`, `150`, `300`, `600`, and `1200`
-  - `flatten` - a boolean that, when set to true, flattens the split PDF files, making form fields and annotations uneditable
-  - `userPassword` - password for opening the resulting PDF(s)
-  - `ownerPassword` - password for full access on the resulting PDF(s)
-  - `embeds` - files to embed in the generated PDF (repeatable). This feature enables the creation of PDFs compatible with standards like [ZUGFeRD / Factur-X](https://fnfe-mpe.org/factur-x/), which require embedding XML invoices and other files within the PDF
+    - `merge` - merges all the resulting files from the conversion into an individual PDF file
+    - `pdfa` - PDF format of the conversion resulting file (i.e. `PDF/A-1a`, `PDF/A-2b`, `PDF/A-3b`)
+    - `pdfUA` - enables PDF for Universal Access for optimal accessibility
+    - `metadata` - writes metadata to the generated PDF file
+    - `losslessImageCompression` - allows turning lossless compression on or off to tweak image conversion performance
+    - `reduceImageResolution` - allows turning on or off image resolution reduction to tweak image conversion
+      performance
+    - `quality` - specifies the quality of the JPG export. The value ranges from 1 to 100, with higher values producing
+      higher-quality images and larger file sizes
+    - `maxImageResolution` - specifies if all images will be reduced to the specified DPI value. Possible values are:
+      `75`, `150`, `300`, `600`, and `1200`
+    - `flatten` - a boolean that, when set to true, flattens the split PDF files, making form fields and annotations
+      uneditable
+    - `userPassword` - password for opening the resulting PDF(s)
+    - `ownerPassword` - password for full access on the resulting PDF(s)
+    - `embeds` - files to embed in the generated PDF (repeatable). This feature enables the creation of PDFs compatible
+      with standards like [ZUGFeRD / Factur-X](https://fnfe-mpe.org/factur-x/), which require embedding XML invoices and
+      other files within the PDF
 
 ### PDF Engines
 
-The `Jotenberg` class interacts with Gotenberg's [PDF Engines](https://gotenberg.dev/docs/routes#convert-into-pdfa--pdfua-route) routes to manipulate PDF files.
+The `Jotenberg` class interacts with
+Gotenberg's [PDF Engines](https://gotenberg.dev/docs/routes#convert-into-pdfa--pdfua-route) routes to manipulate PDF
+files.
 
 #### Format Conversion
 
-This method interacts with [PDF Engines](https://gotenberg.dev/docs/routes#convert-into-pdfa--pdfua-route) conversion route to transform PDF files into the requested PDF/A format and/or PDF/UA.
+This method interacts with [PDF Engines](https://gotenberg.dev/docs/routes#convert-into-pdfa--pdfua-route) conversion
+route to transform PDF files into the requested PDF/A format and/or PDF/UA.
 
 ```java
 import io.bitizens.Jotenberg;
 import io.bitizens.pdfengines.PDFEnginesConversionOptions;
 import io.bitizens.common.PdfFormat;
 import org.apache.http.client.methods.CloseableHttpResponse;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -441,20 +495,25 @@ import java.util.List;
 Jotenberg client = new Jotenberg("http://localhost:3000");
 
 List<File> files = new ArrayList<>();
-files.add(new File("path/to/file_1.pdf"));
-files.add(new File("path/to/file_2.pdf"));
+files.
+
+add(new File("path/to/file_1.pdf"));
+        files.
+
+add(new File("path/to/file_2.pdf"));
 
 PDFEnginesConversionOptions options = new PDFEnginesConversionOptions.Builder()
-    .addPdfa(PdfFormat.A_2B)
-    .addPdfua(true)
-    .build();
+        .addPdfa(PdfFormat.A_2B)
+        .addPdfua(true)
+        .build();
 
 CloseableHttpResponse response = client.convertWithPdfEngines(files, options);
 ```
 
 #### Merging
 
-This method interacts with [PDF Engines](https://gotenberg.dev/docs/routes#merge-pdfs-route) merge route which gathers different
+This method interacts with [PDF Engines](https://gotenberg.dev/docs/routes#merge-pdfs-route) merge route which gathers
+different
 engines that can manipulate and merge PDF files such
 as: [PDFtk](https://gitlab.com/pdftk-java/pdftk), [PDFcpu](https://github.com/pdfcpu/pdfcpu), [QPDF](https://github.com/qpdf/qpdf),
 and [UNO](https://github.com/unoconv/unoconv).
@@ -465,6 +524,7 @@ import io.bitizens.pdfengines.PDFEnginesMergeOptions;
 import io.bitizens.common.PdfFormat;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.json.JSONObject;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -472,18 +532,24 @@ import java.util.List;
 Jotenberg client = new Jotenberg("http://localhost:3000");
 
 List<File> files = new ArrayList<>();
-files.add(new File("path/to/file_1.pdf"));
-files.add(new File("path/to/file_2.pdf"));
+files.
+
+add(new File("path/to/file_1.pdf"));
+        files.
+
+add(new File("path/to/file_2.pdf"));
 
 JSONObject metadata = new JSONObject();
-metadata.put("Title", "Merged Document");
+metadata.
+
+put("Title","Merged Document");
 
 PDFEnginesMergeOptions options = new PDFEnginesMergeOptions.Builder()
-    .addPdfa(PdfFormat.A_2B)
-    .addPdfua(true)
-    .addMetadata(metadata)
-    .addFlatten(true)
-    .build();
+        .addPdfa(PdfFormat.A_2B)
+        .addPdfua(true)
+        .addMetadata(metadata)
+        .addFlatten(true)
+        .build();
 
 CloseableHttpResponse response = client.mergeWithPdfEngines(files, options);
 ```
@@ -497,6 +563,7 @@ This method reads metadata from the provided PDF files.
 ```java
 import io.bitizens.Jotenberg;
 import org.apache.http.client.methods.CloseableHttpResponse;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -504,8 +571,12 @@ import java.util.List;
 Jotenberg client = new Jotenberg("http://localhost:3000");
 
 List<File> files = new ArrayList<>();
-files.add(new File("path/to/file_1.pdf"));
-files.add(new File("path/to/file_2.pdf"));
+files.
+
+add(new File("path/to/file_1.pdf"));
+        files.
+
+add(new File("path/to/file_2.pdf"));
 
 CloseableHttpResponse response = client.readMetadataWithPdfEngines(files);
 ```
@@ -518,6 +589,7 @@ This method writes metadata to the provided PDF files.
 import io.bitizens.Jotenberg;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.json.JSONObject;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -525,27 +597,42 @@ import java.util.List;
 Jotenberg client = new Jotenberg("http://localhost:3000");
 
 List<File> files = new ArrayList<>();
-files.add(new File("path/to/file_1.pdf"));
-files.add(new File("path/to/file_2.pdf"));
+files.
+
+add(new File("path/to/file_1.pdf"));
+        files.
+
+add(new File("path/to/file_2.pdf"));
 
 JSONObject metadata = new JSONObject();
-metadata.put("Author", "Taha Cherfia");
-metadata.put("Title", "Jotenberg");
-metadata.put("Keywords", new String[]{"pdf", "html", "gotenberg"});
+metadata.
+
+put("Author","Taha Cherfia");
+metadata.
+
+put("Title","Jotenberg");
+metadata.
+
+put("Keywords",new String[] {
+    "pdf", "html", "gotenberg"
+});
 
 CloseableHttpResponse response = client.writeMetadataWithPdfEngines(files, metadata.toString());
 ```
 
-Please consider referring to [ExifTool](https://exiftool.org/TagNames/XMP.html#pdf) for a comprehensive list of accessible metadata options.
+Please consider referring to [ExifTool](https://exiftool.org/TagNames/XMP.html#pdf) for a comprehensive list of
+accessible metadata options.
 
 ### PDF Splitting
 
-Each [Chromium](#chromium) and [LibreOffice](#libreoffice) route has a `split` parameter that allows splitting the PDF file into multiple files. The `split` parameter is passed as a JSON string in the options with the following properties:
+Each [Chromium](#chromium) and [LibreOffice](#libreoffice) route has a `split` parameter that allows splitting the PDF
+file into multiple files. The `split` parameter is passed as a JSON string in the options with the following properties:
 
 - `mode`: the mode of the split. It can be `pages` or `intervals`
 - `span`: the span of the split. It is a string that represents the range of pages to split
 - `unify`: a boolean that allows unifying the split files. Only works when `mode` is `pages`
-- `flatten`: a boolean that, when set to true, flattens the split PDF files, making form fields and annotations uneditable
+- `flatten`: a boolean that, when set to true, flattens the split PDF files, making form fields and annotations
+  uneditable
 
 ```java
 import io.bitizens.Jotenberg;
@@ -557,27 +644,36 @@ import org.json.JSONObject;
 Jotenberg client = new Jotenberg("http://localhost:3000");
 
 JSONObject split = new JSONObject();
-split.put("mode", "pages");
-split.put("span", "1-2");
-split.put("unify", true);
+split.
+
+put("mode","pages");
+split.
+
+put("span","1-2");
+split.
+
+put("unify",true);
 
 ChromiumPageProperties pageProperties = new ChromiumPageProperties.Builder().build();
 ChromiumOptions options = new ChromiumOptions.Builder()
-    .addSplit(split.toString())
-    .build();
+        .addSplit(split.toString())
+        .build();
 
 CloseableHttpResponse response = client.convert(
-    "https://www.example.com/",
-    pageProperties,
-    options
+        "https://www.example.com/",
+        pageProperties,
+        options
 );
 ```
 
-On the other hand, PDFEngines' has a `splitWithPdfEngines` method that interacts with [PDF Engines](https://gotenberg.dev/docs/routes#split-pdfs-route) split route which splits PDF files into multiple files.
+On the other hand, PDFEngines' has a `splitWithPdfEngines` method that interacts
+with [PDF Engines](https://gotenberg.dev/docs/routes#split-pdfs-route) split route which splits PDF files into multiple
+files.
 
 ```java
 import io.bitizens.Jotenberg;
 import org.apache.http.client.methods.CloseableHttpResponse;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -585,27 +681,35 @@ import java.util.List;
 Jotenberg client = new Jotenberg("http://localhost:3000");
 
 List<File> files = new ArrayList<>();
-files.add(new File("path/to/file_1.pdf"));
-files.add(new File("path/to/file_2.pdf"));
+files.
+
+add(new File("path/to/file_1.pdf"));
+        files.
+
+add(new File("path/to/file_2.pdf"));
 
 CloseableHttpResponse response = client.splitWithPdfEngines(
-    files,
-    "pages",  // split mode
-    "1-2",    // split span
-    true,     // unify
-    false     // flatten
+        files,
+        "pages",  // split mode
+        "1-2",    // split span
+        true,     // unify
+        false     // flatten
 );
 ```
 
-> ⚠️ **Note**: Gotenberg does not currently validate the `span` value when `mode` is set to `pages`, as the validation depends on the chosen engine for the split feature. See [PDF Engines module configuration](https://gotenberg.dev/docs/configuration#pdf-engines) for more details.
+> ⚠️ **Note**: Gotenberg does not currently validate the `span` value when `mode` is set to `pages`, as the validation
+> depends on the chosen engine for the split feature.
+> See [PDF Engines module configuration](https://gotenberg.dev/docs/configuration#pdf-engines) for more details.
 
 ### PDF Flattening
 
-PDF flattening converts interactive elements like forms and annotations into a static PDF. This ensures the document looks the same everywhere and prevents further edits.
+PDF flattening converts interactive elements like forms and annotations into a static PDF. This ensures the document
+looks the same everywhere and prevents further edits.
 
 ```java
 import io.bitizens.Jotenberg;
 import org.apache.http.client.methods.CloseableHttpResponse;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -613,15 +717,21 @@ import java.util.List;
 Jotenberg client = new Jotenberg("http://localhost:3000");
 
 List<File> files = new ArrayList<>();
-files.add(new File("path/to/file_1.pdf"));
-files.add(new File("path/to/file_2.pdf"));
+files.
+
+add(new File("path/to/file_1.pdf"));
+        files.
+
+add(new File("path/to/file_2.pdf"));
 
 CloseableHttpResponse response = client.flattenWithPdfEngines(files);
 ```
 
 ### PDF Encryption
 
-Each [Chromium](#chromium) and [LibreOffice](#libreoffice) route supports PDF encryption through the `userPassword` and `ownerPassword` parameters in their respective options. The `userPassword` is required to open the PDF, while the `ownerPassword` provides full access permissions.
+Each [Chromium](#chromium) and [LibreOffice](#libreoffice) route supports PDF encryption through the `userPassword` and
+`ownerPassword` parameters in their respective options. The `userPassword` is required to open the PDF, while the
+`ownerPassword` provides full access permissions.
 
 ```java
 import io.bitizens.Jotenberg;
@@ -633,14 +743,14 @@ Jotenberg client = new Jotenberg("http://localhost:3000");
 
 ChromiumPageProperties pageProperties = new ChromiumPageProperties.Builder().build();
 ChromiumOptions options = new ChromiumOptions.Builder()
-    .addUserPassword("my_user_password")
-    .addOwnerPassword("my_owner_password")
-    .build();
+        .addUserPassword("my_user_password")
+        .addOwnerPassword("my_owner_password")
+        .build();
 
 CloseableHttpResponse response = client.convert(
-    "https://www.example.com/",
-    pageProperties,
-    options
+        "https://www.example.com/",
+        pageProperties,
+        options
 );
 ```
 
@@ -650,6 +760,7 @@ Alternatively, you can use the `encryptWithPdfEngines` method:
 import io.bitizens.Jotenberg;
 import io.bitizens.pdfengines.PDFEnginesEncryptOptions;
 import org.apache.http.client.methods.CloseableHttpResponse;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -657,19 +768,24 @@ import java.util.List;
 Jotenberg client = new Jotenberg("http://localhost:3000");
 
 List<File> files = new ArrayList<>();
-files.add(new File("path/to/document.pdf"));
+files.
+
+add(new File("path/to/document.pdf"));
 
 PDFEnginesEncryptOptions encryptOptions = new PDFEnginesEncryptOptions.Builder()
-    .addUserPassword("user123")
-    .addOwnerPassword("owner123")
-    .build();
+        .addUserPassword("user123")
+        .addOwnerPassword("owner123")
+        .build();
 
 CloseableHttpResponse response = client.encryptWithPdfEngines(files, encryptOptions);
 ```
 
 ### Embedding Files
 
-Each [Chromium](#chromium) and [LibreOffice](#libreoffice) route supports embedding files into the generated PDF through the `embeds` parameter in their respective options. This feature enables the creation of PDFs compatible with standards like [ZUGFeRD / Factur-X](https://fnfe-mpe.org/factur-x/), which require embedding XML invoices and other files within the PDF.
+Each [Chromium](#chromium) and [LibreOffice](#libreoffice) route supports embedding files into the generated PDF through
+the `embeds` parameter in their respective options. This feature enables the creation of PDFs compatible with standards
+like [ZUGFeRD / Factur-X](https://fnfe-mpe.org/factur-x/), which require embedding XML invoices and other files within
+the PDF.
 
 You can embed multiple files by passing a list of files:
 
@@ -678,6 +794,7 @@ import io.bitizens.Jotenberg;
 import io.bitizens.chromium.ChromiumPageProperties;
 import io.bitizens.chromium.ChromiumOptions;
 import org.apache.http.client.methods.CloseableHttpResponse;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -685,25 +802,31 @@ import java.util.List;
 Jotenberg client = new Jotenberg("http://localhost:3000");
 
 List<File> embeds = new ArrayList<>();
-embeds.add(new File("path/to/invoice.xml"));
-embeds.add(new File("path/to/logo.png"));
+embeds.
+
+add(new File("path/to/invoice.xml"));
+        embeds.
+
+add(new File("path/to/logo.png"));
 
 ChromiumPageProperties pageProperties = new ChromiumPageProperties.Builder().build();
 ChromiumOptions options = new ChromiumOptions.Builder()
-    .addEmbeds(embeds)
-    .build();
+        .addEmbeds(embeds)
+        .build();
 
 File htmlFile = new File("path/to/index.html");
 CloseableHttpResponse response = client.convert(htmlFile, pageProperties, options);
 ```
 
-All embedded files will be attached to the generated PDF and can be extracted using PDF readers that support file attachments.
+All embedded files will be attached to the generated PDF and can be extracted using PDF readers that support file
+attachments.
 
 Alternatively, you can use the `embedWithPdfEngines` method:
 
 ```java
 import io.bitizens.Jotenberg;
 import org.apache.http.client.methods.CloseableHttpResponse;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -711,11 +834,17 @@ import java.util.List;
 Jotenberg client = new Jotenberg("http://localhost:3000");
 
 List<File> pdfFiles = new ArrayList<>();
-pdfFiles.add(new File("path/to/document.pdf"));
+pdfFiles.
+
+add(new File("path/to/document.pdf"));
 
 List<File> embeds = new ArrayList<>();
-embeds.add(new File("path/to/attachment.txt"));
-embeds.add(new File("path/to/image.png"));
+embeds.
+
+add(new File("path/to/attachment.txt"));
+        embeds.
+
+add(new File("path/to/image.png"));
 
 CloseableHttpResponse response = client.embedWithPdfEngines(pdfFiles, embeds);
 ```
@@ -732,6 +861,7 @@ import io.bitizens.pdfengines.PDFEnginesMergeOptions;
 import io.bitizens.common.PdfFormat;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.commons.io.FileUtils;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -746,22 +876,26 @@ public class Main {
             String url = "https://gotenberg.dev/";
 
             ChromiumPageProperties pageProperties = new ChromiumPageProperties.Builder()
-                .addSinglePage(true)
-                .addPaperWidth(8.5f)
-                .addPaperHeight(11f)
-                .build();
+                    .addSinglePage(true)
+                    .addPaperWidth(8.5f)
+                    .addPaperHeight(11f)
+                    .build();
 
             JSONObject split = new JSONObject();
             split.put("mode", "pages");
             split.put("span", "1-2");
             split.put("unify", true);
 
+            JSONArray emulatedMediaFeatures = new JSONArray();
+            emulatedMediaFeatures.put(new JSONObject().put("name", "prefers-color-scheme").put("value", "dark"));
+
             ChromiumOptions options = new ChromiumOptions.Builder()
-                .addSplit(split.toString())
-                .build();
+                    .addSplit(split.toString())
+                    .addEmulatedMediaFeatures(emulatedMediaFeatures)
+                    .build();
 
             CloseableHttpResponse response = client.convert(url, pageProperties, options);
-            
+
             var status = response.getStatusLine().getStatusCode();
             if (status != 200) {
                 throw new RuntimeException("Gotenberg PDF rendering failed with status: " + status);
