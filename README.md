@@ -55,7 +55,7 @@ Then add the dependency:
 <dependency>
     <groupId>io.bitizens</groupId>
     <artifactId>jotenberg</artifactId>
-    <version>2.2.0</version>
+    <version>2.3.0</version>
 </dependency>
 ```
 
@@ -95,7 +95,7 @@ repositories {
 Then add the dependency:
 
 ```gradle
-implementation group: 'io.bitizens', name: 'jotenberg', version: '2.2.0'
+implementation group: 'io.bitizens', name: 'jotenberg', version: '2.3.0'
 ```
 
 **Note:** You'll need to authenticate with GitHub Packages. Create a personal access token with `read:packages`
