@@ -28,6 +28,7 @@ public abstract class AbstractOptions {
     protected final String ignoreResourceHttpStatusDomains;
     protected final String failOnResourceLoadingFailed;
     protected final String skipNetworkIdleEvent;
+    protected final String skipNetworkAlmostIdleEvent;
     protected final String generateDocumentOutline;
     protected final String cookies;
     protected final String downloadFrom;
@@ -52,6 +53,7 @@ public abstract class AbstractOptions {
         ignoreResourceHttpStatusDomains = builder.ignoreResourceHttpStatusDomains;
         failOnResourceLoadingFailed = builder.failOnResourceLoadingFailed;
         skipNetworkIdleEvent = builder.skipNetworkIdleEvent;
+        skipNetworkAlmostIdleEvent = builder.skipNetworkAlmostIdleEvent;
         generateDocumentOutline = builder.generateDocumentOutline;
         cookies = builder.cookies;
         downloadFrom = builder.downloadFrom;
@@ -81,6 +83,7 @@ public abstract class AbstractOptions {
         protected String ignoreResourceHttpStatusDomains = null;
         protected String failOnResourceLoadingFailed = null;
         protected String skipNetworkIdleEvent = "false";
+        protected String skipNetworkAlmostIdleEvent = "true";
         protected String generateDocumentOutline = null;
         protected String cookies = null;
         protected String downloadFrom = null;
@@ -237,6 +240,17 @@ public abstract class AbstractOptions {
          */
         public Builder<T> addSkipNetworkIdleEvent(boolean skipNetworkIdleEvent) {
             this.skipNetworkIdleEvent = String.valueOf(skipNetworkIdleEvent);
+            return this;
+        }
+
+        /**
+         * Sets whether to skip the network almost idle event.
+         *
+         * @param skipNetworkAlmostIdleEvent `true` to skip the network almost idle event, `false` otherwise.
+         * @return The Builder instance for method chaining.
+         */
+        public Builder<T> addSkipNetworkAlmostIdleEvent(boolean skipNetworkAlmostIdleEvent) {
+            this.skipNetworkAlmostIdleEvent = String.valueOf(skipNetworkAlmostIdleEvent);
             return this;
         }
 
