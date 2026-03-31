@@ -43,6 +43,11 @@ public class Jotenberg implements AutoCloseable {
     private static final String PDF_ENGINES_FLATTEN_ROUTE = "forms/pdfengines/flatten";
     private static final String PDF_ENGINES_ENCRYPT_ROUTE = "forms/pdfengines/encrypt";
     private static final String PDF_ENGINES_EMBED_ROUTE = "forms/pdfengines/embed";
+    private static final String PDF_ENGINES_WATERMARK_ROUTE = "forms/pdfengines/watermark";
+    private static final String PDF_ENGINES_STAMP_ROUTE = "forms/pdfengines/stamp";
+    private static final String PDF_ENGINES_ROTATE_ROUTE = "forms/pdfengines/rotate";
+    private static final String PDF_ENGINES_READ_BOOKMARKS_ROUTE = "forms/pdfengines/bookmarks/read";
+    private static final String PDF_ENGINES_WRITE_BOOKMARKS_ROUTE = "forms/pdfengines/bookmarks/write";
 
     private static final String SCREENSHOTS_HTML_ROUTE = "forms/chromium/screenshot/html";
     private static final String SCREENSHOTS_MARKDOWN_ROUTE = "forms/chromium/screenshot/markdown";
@@ -343,6 +348,106 @@ public class Jotenberg implements AutoCloseable {
      */
     public CloseableHttpResponse embedWithPdfEngines(List<File> files, List<File> embeds) throws IOException {
         return HTTPRequestManager.getPdfEnginesHttpResponseWithEmbed(files, embeds, endpoint.concat(PDF_ENGINES_EMBED_ROUTE));
+    }
+
+    /**
+     * Applies a watermark to PDF files using PDF Engines.
+     *
+     * @param files               The list of PDF files to process.
+     * @param watermarkSource     Watermark source type ('text', 'image', or 'pdf').
+     * @param watermarkExpression Watermark expression.
+     * @param watermarkPages      Optional page ranges.
+     * @param watermarkOptions    Optional engine-specific options as JSON string.
+     * @param watermark           Optional watermark file required for image/pdf sources.
+     * @return A CloseableHttpResponse containing the result.
+     * @throws IOException If an I/O error occurs during the operation.
+     */
+    public CloseableHttpResponse watermarkWithPdfEngines(
+            List<File> files,
+            String watermarkSource,
+            String watermarkExpression,
+            String watermarkPages,
+            String watermarkOptions,
+            File watermark
+    ) throws IOException {
+        return HTTPRequestManager.getPdfEnginesHttpResponseWithWatermarkOrStamp(
+                files,
+                "watermark",
+                watermarkSource,
+                watermarkExpression,
+                watermarkPages,
+                watermarkOptions,
+                watermark,
+                endpoint.concat(PDF_ENGINES_WATERMARK_ROUTE)
+        );
+    }
+
+    /**
+     * Applies a stamp to PDF files using PDF Engines.
+     *
+     * @param files           The list of PDF files to process.
+     * @param stampSource     Stamp source type ('text', 'image', or 'pdf').
+     * @param stampExpression Stamp expression.
+     * @param stampPages      Optional page ranges.
+     * @param stampOptions    Optional engine-specific options as JSON string.
+     * @param stamp           Optional stamp file required for image/pdf sources.
+     * @return A CloseableHttpResponse containing the result.
+     * @throws IOException If an I/O error occurs during the operation.
+     */
+    public CloseableHttpResponse stampWithPdfEngines(
+            List<File> files,
+            String stampSource,
+            String stampExpression,
+            String stampPages,
+            String stampOptions,
+            File stamp
+    ) throws IOException {
+        return HTTPRequestManager.getPdfEnginesHttpResponseWithWatermarkOrStamp(
+                files,
+                "stamp",
+                stampSource,
+                stampExpression,
+                stampPages,
+                stampOptions,
+                stamp,
+                endpoint.concat(PDF_ENGINES_STAMP_ROUTE)
+        );
+    }
+
+    /**
+     * Rotates pages in PDF files using PDF Engines.
+     *
+     * @param files       The list of PDF files to process.
+     * @param rotateAngle Rotation angle (90, 180, or 270).
+     * @param rotatePages Optional page ranges.
+     * @return A CloseableHttpResponse containing the result.
+     * @throws IOException If an I/O error occurs during the operation.
+     */
+    public CloseableHttpResponse rotateWithPdfEngines(List<File> files, int rotateAngle, String rotatePages) throws IOException {
+        return HTTPRequestManager.getPdfEnginesHttpResponseWithRotate(files, rotateAngle, rotatePages, endpoint.concat(PDF_ENGINES_ROTATE_ROUTE));
+    }
+
+    /**
+     * Reads bookmarks from PDF files using PDF Engines.
+     *
+     * @param files The list of PDF files to process.
+     * @return A CloseableHttpResponse containing the result.
+     * @throws IOException If an I/O error occurs during the operation.
+     */
+    public CloseableHttpResponse readBookmarksWithPdfEngines(List<File> files) throws IOException {
+        return HTTPRequestManager.getPdfEnginesHttpResponse(files, null, endpoint.concat(PDF_ENGINES_READ_BOOKMARKS_ROUTE));
+    }
+
+    /**
+     * Writes bookmarks to PDF files using PDF Engines.
+     *
+     * @param files     The list of PDF files to process.
+     * @param bookmarks Bookmarks as a JSON string.
+     * @return A CloseableHttpResponse containing the result.
+     * @throws IOException If an I/O error occurs during the operation.
+     */
+    public CloseableHttpResponse writeBookmarksWithPdfEngines(List<File> files, String bookmarks) throws IOException {
+        return HTTPRequestManager.getPdfEnginesHttpResponseWithBookmarks(files, bookmarks, endpoint.concat(PDF_ENGINES_WRITE_BOOKMARKS_ROUTE));
     }
 
 
