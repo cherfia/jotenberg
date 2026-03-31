@@ -142,22 +142,26 @@ public class ConversionHelper {
             return;
         }
 
-        Field[] fields = options.getClass().getDeclaredFields();
         try {
-            for (Field field : fields) {
-                field.setAccessible(true);
-                Object value = field.get(options);
-                if (value != null) {
-                    if (value instanceof java.util.List) {
-                        @SuppressWarnings("unchecked")
-                        java.util.List<File> fileList = (java.util.List<File>) value;
-                        for (File file : fileList) {
-                            jotenberg.getBuilder().addBinaryBody("embeds", file);
+            Class<?> currentClass = options.getClass();
+            while (currentClass != null && PDFEnginesOptions.class.isAssignableFrom(currentClass)) {
+                Field[] fields = currentClass.getDeclaredFields();
+                for (Field field : fields) {
+                    field.setAccessible(true);
+                    Object value = field.get(options);
+                    if (value != null) {
+                        if (value instanceof java.util.List) {
+                            @SuppressWarnings("unchecked")
+                            java.util.List<File> fileList = (java.util.List<File>) value;
+                            for (File file : fileList) {
+                                jotenberg.getBuilder().addBinaryBody("embeds", file);
+                            }
+                        } else {
+                            jotenberg.getBuilder().addTextBody(field.getName(), (String) value);
                         }
-                    } else {
-                        jotenberg.getBuilder().addTextBody(field.getName(), (String) value);
                     }
                 }
+                currentClass = currentClass.getSuperclass();
             }
         } catch (IllegalAccessException e) {
             e.printStackTrace();

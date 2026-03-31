@@ -247,4 +247,125 @@ public class HTTPRequestManager {
         httpPost.setEntity(requestEntity);
         return jotenberg.getClient().execute(httpPost);
     }
+
+    /**
+     * Executes an HTTP POST request for PDF Engines watermark or stamp operation.
+     *
+     * @param files       The list of PDF files.
+     * @param fieldPrefix Prefix used for field names ('watermark' or 'stamp').
+     * @param source      Source type ('text', 'image', or 'pdf').
+     * @param expression  Expression text/path.
+     * @param pages       Optional page ranges.
+     * @param options     Optional engine-specific options JSON string.
+     * @param overlayFile Optional overlay file for image/pdf sources.
+     * @param route       The route for the PDF Engines operation.
+     * @return A CloseableHttpResponse containing the result.
+     * @throws IOException If an I/O error occurs during the operation.
+     */
+    public CloseableHttpResponse getPdfEnginesHttpResponseWithWatermarkOrStamp(
+            List<File> files,
+            String fieldPrefix,
+            String source,
+            String expression,
+            String pages,
+            String options,
+            File overlayFile,
+            String route
+    ) throws IOException {
+        if (files.isEmpty()) {
+            throw new EmptyFileListException();
+        }
+
+        List<File> pdfFiles = files.stream().filter(CommonUtils::isPDF).toList();
+
+        if (pdfFiles.isEmpty()) {
+            throw new FileNotFoundException("No PDF file not found.");
+        }
+
+        if (("image".equals(source) || "pdf".equals(source)) && overlayFile == null) {
+            throw new FileNotFoundException("Overlay file is required when source is image or pdf.");
+        }
+
+        pdfFiles.forEach(file -> jotenberg.getBuilder().addBinaryBody(file.getName(), file));
+        jotenberg.getBuilder().addTextBody(fieldPrefix + "Source", source);
+        jotenberg.getBuilder().addTextBody(fieldPrefix + "Expression", expression);
+
+        if (pages != null) {
+            jotenberg.getBuilder().addTextBody(fieldPrefix + "Pages", pages);
+        }
+        if (options != null) {
+            jotenberg.getBuilder().addTextBody(fieldPrefix + "Options", options);
+        }
+        if (overlayFile != null) {
+            jotenberg.getBuilder().addBinaryBody(fieldPrefix, overlayFile);
+        }
+
+        HttpPost httpPost = new HttpPost(route);
+        HttpEntity requestEntity = jotenberg.getBuilder().build();
+        httpPost.setEntity(requestEntity);
+        return jotenberg.getClient().execute(httpPost);
+    }
+
+    /**
+     * Executes an HTTP POST request for PDF Engines rotate operation.
+     *
+     * @param files       The list of PDF files.
+     * @param rotateAngle Rotation angle (90, 180, or 270).
+     * @param rotatePages Optional page ranges.
+     * @param route       The route for the PDF Engines operation.
+     * @return A CloseableHttpResponse containing the result.
+     * @throws IOException If an I/O error occurs during the operation.
+     */
+    public CloseableHttpResponse getPdfEnginesHttpResponseWithRotate(List<File> files, int rotateAngle, String rotatePages, String route) throws IOException {
+        if (files.isEmpty()) {
+            throw new EmptyFileListException();
+        }
+
+        List<File> pdfFiles = files.stream().filter(CommonUtils::isPDF).toList();
+
+        if (pdfFiles.isEmpty()) {
+            throw new FileNotFoundException("No PDF file not found.");
+        }
+
+        pdfFiles.forEach(file -> jotenberg.getBuilder().addBinaryBody(file.getName(), file));
+        jotenberg.getBuilder().addTextBody("rotateAngle", String.valueOf(rotateAngle));
+
+        if (rotatePages != null) {
+            jotenberg.getBuilder().addTextBody("rotatePages", rotatePages);
+        }
+
+        HttpPost httpPost = new HttpPost(route);
+        HttpEntity requestEntity = jotenberg.getBuilder().build();
+        httpPost.setEntity(requestEntity);
+        return jotenberg.getClient().execute(httpPost);
+    }
+
+    /**
+     * Executes an HTTP POST request for PDF Engines write bookmarks operation.
+     *
+     * @param files     The list of PDF files.
+     * @param bookmarks Bookmarks as JSON string.
+     * @param route     The route for the PDF Engines operation.
+     * @return A CloseableHttpResponse containing the result.
+     * @throws IOException If an I/O error occurs during the operation.
+     */
+    public CloseableHttpResponse getPdfEnginesHttpResponseWithBookmarks(List<File> files, String bookmarks, String route) throws IOException {
+        if (files.isEmpty()) {
+            throw new EmptyFileListException();
+        }
+
+        List<File> pdfFiles = files.stream().filter(CommonUtils::isPDF).toList();
+
+        if (pdfFiles.isEmpty()) {
+            throw new FileNotFoundException("No PDF file not found.");
+        }
+
+        pdfFiles.forEach(file -> jotenberg.getBuilder().addBinaryBody(file.getName(), file));
+        jotenberg.getBuilder().addTextBody("bookmarks", bookmarks);
+
+        HttpPost httpPost = new HttpPost(route);
+        HttpEntity requestEntity = jotenberg.getBuilder().build();
+        httpPost.setEntity(requestEntity);
+        return jotenberg.getClient().execute(httpPost);
+    }
 }

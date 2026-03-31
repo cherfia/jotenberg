@@ -10,10 +10,12 @@ import java.util.Map;
 public class DownloadFrom {
     private final String url;
     private final Map<String, String> extraHttpHeaders;
+    private final String field;
 
     private DownloadFrom(Builder builder) {
         this.url = builder.url;
         this.extraHttpHeaders = builder.extraHttpHeaders;
+        this.field = builder.field;
     }
 
     public String getUrl() {
@@ -24,11 +26,18 @@ public class DownloadFrom {
         return extraHttpHeaders;
     }
 
+    public String getField() {
+        return field;
+    }
+
     public JSONObject toJSONObject() {
         JSONObject json = new JSONObject();
         json.put("url", url);
         if (extraHttpHeaders != null) {
             json.put("extraHttpHeaders", new JSONObject(extraHttpHeaders));
+        }
+        if (field != null) {
+            json.put("field", field);
         }
         return json;
     }
@@ -36,6 +45,7 @@ public class DownloadFrom {
     public static class Builder {
         private String url;
         private Map<String, String> extraHttpHeaders;
+        private String field;
 
         public Builder(String url) {
             this.url = url;
@@ -43,6 +53,11 @@ public class DownloadFrom {
 
         public Builder extraHttpHeaders(Map<String, String> extraHttpHeaders) {
             this.extraHttpHeaders = extraHttpHeaders;
+            return this;
+        }
+
+        public Builder field(String field) {
+            this.field = field;
             return this;
         }
 
