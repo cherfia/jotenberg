@@ -24,6 +24,27 @@ public final class LibreOfficePageProperties {
     private final String exportHiddenSlides;
     private final String skipEmptyPages;
     private final String addOriginalDocumentAsStream;
+    private final String initialView;
+    private final String initialPage;
+    private final String magnification;
+    private final String zoom;
+    private final String pageLayout;
+    private final String firstPageOnLeft;
+    private final String resizeWindowToInitialPage;
+    private final String centerWindow;
+    private final String openInFullScreenMode;
+    private final String displayPDFDocumentTitle;
+    private final String hideViewerMenubar;
+    private final String hideViewerToolbar;
+    private final String hideViewerWindowControls;
+    private final String useTransitionEffects;
+    private final String openBookmarkLevels;
+    private final String nativeWatermarkText;
+    private final String nativeWatermarkColor;
+    private final String nativeWatermarkFontHeight;
+    private final String nativeWatermarkRotateAngle;
+    private final String nativeWatermarkFontName;
+    private final String nativeTiledWatermarkText;
     private final String password;
 
     private LibreOfficePageProperties(Builder builder) {
@@ -44,6 +65,27 @@ public final class LibreOfficePageProperties {
         exportHiddenSlides = builder.exportHiddenSlides;
         skipEmptyPages = builder.skipEmptyPages;
         addOriginalDocumentAsStream = builder.addOriginalDocumentAsStream;
+        initialView = builder.initialView;
+        initialPage = builder.initialPage;
+        magnification = builder.magnification;
+        zoom = builder.zoom;
+        pageLayout = builder.pageLayout;
+        firstPageOnLeft = builder.firstPageOnLeft;
+        resizeWindowToInitialPage = builder.resizeWindowToInitialPage;
+        centerWindow = builder.centerWindow;
+        openInFullScreenMode = builder.openInFullScreenMode;
+        displayPDFDocumentTitle = builder.displayPDFDocumentTitle;
+        hideViewerMenubar = builder.hideViewerMenubar;
+        hideViewerToolbar = builder.hideViewerToolbar;
+        hideViewerWindowControls = builder.hideViewerWindowControls;
+        useTransitionEffects = builder.useTransitionEffects;
+        openBookmarkLevels = builder.openBookmarkLevels;
+        nativeWatermarkText = builder.nativeWatermarkText;
+        nativeWatermarkColor = builder.nativeWatermarkColor;
+        nativeWatermarkFontHeight = builder.nativeWatermarkFontHeight;
+        nativeWatermarkRotateAngle = builder.nativeWatermarkRotateAngle;
+        nativeWatermarkFontName = builder.nativeWatermarkFontName;
+        nativeTiledWatermarkText = builder.nativeTiledWatermarkText;
         password = builder.password;
 
     }
@@ -69,6 +111,27 @@ public final class LibreOfficePageProperties {
         private String exportHiddenSlides = "false";
         private String skipEmptyPages = "false";
         private String addOriginalDocumentAsStream = "false";
+        private String initialView = "0";
+        private String initialPage = "1";
+        private String magnification = "0";
+        private String zoom = "100";
+        private String pageLayout = "0";
+        private String firstPageOnLeft = "false";
+        private String resizeWindowToInitialPage = "false";
+        private String centerWindow = "false";
+        private String openInFullScreenMode = "false";
+        private String displayPDFDocumentTitle = "true";
+        private String hideViewerMenubar = "false";
+        private String hideViewerToolbar = "false";
+        private String hideViewerWindowControls = "false";
+        private String useTransitionEffects = "true";
+        private String openBookmarkLevels = "-1";
+        private String nativeWatermarkText = null;
+        private String nativeWatermarkColor = "8388223";
+        private String nativeWatermarkFontHeight = "0";
+        private String nativeWatermarkRotateAngle = "0";
+        private String nativeWatermarkFontName = "Helvetica";
+        private String nativeTiledWatermarkText = null;
         private String password = null;
 
 
@@ -261,6 +324,111 @@ public final class LibreOfficePageProperties {
          */
         public Builder addAddOriginalDocumentAsStream(boolean addOriginalDocumentAsStream) {
             this.addOriginalDocumentAsStream = String.valueOf(addOriginalDocumentAsStream);
+            return this;
+        }
+
+        public Builder addInitialView(int initialView) {
+            this.initialView = String.valueOf(initialView);
+            return this;
+        }
+
+        public Builder addInitialPage(int initialPage) {
+            this.initialPage = String.valueOf(initialPage);
+            return this;
+        }
+
+        public Builder addMagnification(int magnification) {
+            this.magnification = String.valueOf(magnification);
+            return this;
+        }
+
+        public Builder addZoom(int zoom) {
+            this.zoom = String.valueOf(zoom);
+            return this;
+        }
+
+        public Builder addPageLayout(int pageLayout) {
+            this.pageLayout = String.valueOf(pageLayout);
+            return this;
+        }
+
+        public Builder addFirstPageOnLeft(boolean firstPageOnLeft) {
+            this.firstPageOnLeft = String.valueOf(firstPageOnLeft);
+            return this;
+        }
+
+        public Builder addResizeWindowToInitialPage(boolean resizeWindowToInitialPage) {
+            this.resizeWindowToInitialPage = String.valueOf(resizeWindowToInitialPage);
+            return this;
+        }
+
+        public Builder addCenterWindow(boolean centerWindow) {
+            this.centerWindow = String.valueOf(centerWindow);
+            return this;
+        }
+
+        public Builder addOpenInFullScreenMode(boolean openInFullScreenMode) {
+            this.openInFullScreenMode = String.valueOf(openInFullScreenMode);
+            return this;
+        }
+
+        public Builder addDisplayPDFDocumentTitle(boolean displayPDFDocumentTitle) {
+            this.displayPDFDocumentTitle = String.valueOf(displayPDFDocumentTitle);
+            return this;
+        }
+
+        public Builder addHideViewerMenubar(boolean hideViewerMenubar) {
+            this.hideViewerMenubar = String.valueOf(hideViewerMenubar);
+            return this;
+        }
+
+        public Builder addHideViewerToolbar(boolean hideViewerToolbar) {
+            this.hideViewerToolbar = String.valueOf(hideViewerToolbar);
+            return this;
+        }
+
+        public Builder addHideViewerWindowControls(boolean hideViewerWindowControls) {
+            this.hideViewerWindowControls = String.valueOf(hideViewerWindowControls);
+            return this;
+        }
+
+        public Builder addUseTransitionEffects(boolean useTransitionEffects) {
+            this.useTransitionEffects = String.valueOf(useTransitionEffects);
+            return this;
+        }
+
+        public Builder addOpenBookmarkLevels(int openBookmarkLevels) {
+            this.openBookmarkLevels = String.valueOf(openBookmarkLevels);
+            return this;
+        }
+
+        public Builder addNativeWatermarkText(String nativeWatermarkText) {
+            this.nativeWatermarkText = nativeWatermarkText;
+            return this;
+        }
+
+        public Builder addNativeWatermarkColor(int nativeWatermarkColor) {
+            this.nativeWatermarkColor = String.valueOf(nativeWatermarkColor);
+            return this;
+        }
+
+        public Builder addNativeWatermarkFontHeight(int nativeWatermarkFontHeight) {
+            this.nativeWatermarkFontHeight = String.valueOf(nativeWatermarkFontHeight);
+            return this;
+        }
+
+        public Builder addNativeWatermarkRotateAngle(int nativeWatermarkRotateAngle) {
+            this.nativeWatermarkRotateAngle = String.valueOf(nativeWatermarkRotateAngle);
+            return this;
+        }
+
+        public Builder addNativeWatermarkFontName(String nativeWatermarkFontName) {
+            this.nativeWatermarkFontName = nativeWatermarkFontName;
+            return this;
+        }
+
+        public Builder addNativeTiledWatermarkText(String nativeTiledWatermarkText) {
+            this.nativeTiledWatermarkText = nativeTiledWatermarkText;
             return this;
         }
 
