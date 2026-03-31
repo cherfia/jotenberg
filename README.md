@@ -365,6 +365,7 @@ available options:
 - `failOnResourceLoadingFailed` - Whether to fail on resource loading failed
 - `failOnConsoleExceptions` - Whether to fail on console exceptions
 - `skipNetworkIdleEvent` - Whether to skip network idle event
+- `skipNetworkAlmostIdleEvent` - Whether to skip network almost idle event
 - `generateDocumentOutline` - Whether to generate document outline
 - `cookies` - Cookies to be written (as JSON string)
 - `downloadFrom` - Download a file from a URL (as JSON string)
@@ -406,6 +407,7 @@ all options available:
 - `failOnConsoleExceptions` - Return a 409 Conflict response if there are exceptions in the Chromium console (default
   false)
 - `skipNetworkIdleEvent` - Do not wait for Chromium network to be idle (default true)
+- `skipNetworkAlmostIdleEvent` - Do not wait for Chromium network to be almost idle (default true)
 - `optimizeForSpeed` - Define whether to optimize image encoding for speed, not for resulting size
 - `cookies` - Cookies to be written (as JSON string)
 - `downloadFrom` - Download the file from a specific URL. It must return a Content-Disposition header with a filename
@@ -451,6 +453,12 @@ Similarly to Chromium's route `convert` method, this method takes the following 
 
 - `pageProperties`: changes how the PDF generated file will look like. It also includes a `password` parameter to open
   the source file.
+    - Viewer/opening controls: `initialView`, `initialPage`, `magnification`, `zoom`, `pageLayout`,
+      `firstPageOnLeft`, `resizeWindowToInitialPage`, `centerWindow`, `openInFullScreenMode`,
+      `displayPDFDocumentTitle`, `hideViewerMenubar`, `hideViewerToolbar`, `hideViewerWindowControls`,
+      `useTransitionEffects`, `openBookmarkLevels`
+    - Native watermark controls: `nativeWatermarkText`, `nativeWatermarkColor`, `nativeWatermarkFontHeight`,
+      `nativeWatermarkRotateAngle`, `nativeWatermarkFontName`, `nativeTiledWatermarkText`
 - `options`: includes:
     - `merge` - merges all the resulting files from the conversion into an individual PDF file
     - `pdfa` - PDF format of the conversion resulting file (i.e. `PDF/A-1a`, `PDF/A-2b`, `PDF/A-3b`)
@@ -622,6 +630,67 @@ CloseableHttpResponse response = client.writeMetadataWithPdfEngines(files, metad
 
 Please consider referring to [ExifTool](https://exiftool.org/TagNames/XMP.html#pdf) for a comprehensive list of
 accessible metadata options.
+
+#### Watermark
+
+Use `watermarkWithPdfEngines` to apply a watermark behind page content:
+
+```java
+CloseableHttpResponse response = client.watermarkWithPdfEngines(
+        files,
+        "text",
+        "CONFIDENTIAL",
+        "1-3",
+        "{\"opacity\":0.3}",
+        null
+);
+```
+
+#### Stamp
+
+Use `stampWithPdfEngines` to apply a stamp over page content:
+
+```java
+CloseableHttpResponse response = client.stampWithPdfEngines(
+        files,
+        "text",
+        "APPROVED",
+        null,
+        "{\"rotation\":45}",
+        null
+);
+```
+
+#### Rotate
+
+Use `rotateWithPdfEngines` to rotate pages:
+
+```java
+CloseableHttpResponse response = client.rotateWithPdfEngines(files, 90, "1-2");
+```
+
+#### Bookmarks
+
+Read bookmarks:
+
+```java
+CloseableHttpResponse response = client.readBookmarksWithPdfEngines(files);
+```
+
+Write bookmarks:
+
+```java
+String bookmarks = "[{\"title\":\"Intro\",\"page\":1}]";
+CloseableHttpResponse response = client.writeBookmarksWithPdfEngines(files, bookmarks);
+```
+
+Merge route now also supports:
+
+- `bookmarks` (JSON list or filename-keyed JSON object)
+- `autoIndexBookmarks` (boolean)
+
+`downloadFrom` JSON supports `field` with values `""`, `"embedded"`, `"watermark"`, `"stamp"`.
+When `field` is set, it takes precedence over legacy `embedded`.
 
 ### PDF Splitting
 
