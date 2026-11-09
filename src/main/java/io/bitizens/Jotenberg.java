@@ -1,458 +1,261 @@
 package io.bitizens;
 
-import io.bitizens.chromium.ChromiumOptions;
-import io.bitizens.chromium.ChromiumPageProperties;
-import io.bitizens.common.CommonUtils;
-import io.bitizens.common.exceptions.EmptyFileListException;
-import io.bitizens.common.exceptions.IndexFileNotFoundExceptions;
-import io.bitizens.core.ConversionHelper;
-import io.bitizens.core.HTTPRequestManager;
-import io.bitizens.libreoffice.LibreOfficeOptions;
-import io.bitizens.libreoffice.LibreOfficePageProperties;
-import io.bitizens.pdfengines.PDFEnginesConversionOptions;
-import io.bitizens.pdfengines.PDFEnginesEncryptOptions;
-import io.bitizens.pdfengines.PDFEnginesMergeOptions;
-import io.bitizens.screenshots.ImageProperties;
-import io.bitizens.screenshots.ScreenshotOptions;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.entity.mime.HttpMultipartMode;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+import io.bitizens.chromium.ChromiumClient;
+import io.bitizens.core.JotenbergException;
+import io.bitizens.internal.Transport;
+import io.bitizens.libreoffice.LibreOfficeClient;
+import io.bitizens.pdf.PdfClient;
+import io.bitizens.system.SystemClient;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.util.List;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.time.Duration;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.function.Function;
 
 /**
- * Jotenberg is a class that provides functionality for interacting with the Gotenberg API
- * to convert and process various types of documents.
+ * Jotenberg is a client for Gotenberg's HTTP API. It's thread-safe: create one and reuse it.
+ *
+ * <pre>{@code
+ * Jotenberg client = new Jotenberg("http://localhost:3000");
+ * byte[] pdf = client.chromium().convert(UrlConversion.of("https://example.com"));
+ * }</pre>
+ *
+ * Every method returns the result, and throws a {@link io.bitizens.core.GotenbergException} when Gotenberg answers an
+ * error, or a {@link io.bitizens.core.JotenbergException} when it can't be reached.
  */
-public class Jotenberg implements AutoCloseable {
-    private static final String CHROMIUM_HTML_ROUTE = "forms/chromium/convert/html";
-    private static final String CHROMIUM_MARKDOWN_ROUTE = "forms/chromium/convert/markdown";
-    private static final String CHROMIUM_URL_ROUTE = "forms/chromium/convert/url";
-    private static final String LIBRE_OFFICE_ROUTE = "forms/libreoffice/convert";
-    private static final String PDF_ENGINES_CONVERT_ROUTE = "forms/pdfengines/convert";
-    private static final String PDF_ENGINES_MERGE_ROUTE = "forms/pdfengines/merge";
-    private static final String PDF_ENGINES_READ_METADATA_ROUTE = "forms/pdfengines/metadata/read";
-    private static final String PDF_ENGINES_WRITE_METADATA_ROUTE = "forms/pdfengines/metadata/write";
-    private static final String PDF_ENGINES_SPLIT_ROUTE = "forms/pdfengines/split";
-    private static final String PDF_ENGINES_FLATTEN_ROUTE = "forms/pdfengines/flatten";
-    private static final String PDF_ENGINES_ENCRYPT_ROUTE = "forms/pdfengines/encrypt";
-    private static final String PDF_ENGINES_EMBED_ROUTE = "forms/pdfengines/embed";
-    private static final String PDF_ENGINES_WATERMARK_ROUTE = "forms/pdfengines/watermark";
-    private static final String PDF_ENGINES_STAMP_ROUTE = "forms/pdfengines/stamp";
-    private static final String PDF_ENGINES_ROTATE_ROUTE = "forms/pdfengines/rotate";
-    private static final String PDF_ENGINES_READ_BOOKMARKS_ROUTE = "forms/pdfengines/bookmarks/read";
-    private static final String PDF_ENGINES_WRITE_BOOKMARKS_ROUTE = "forms/pdfengines/bookmarks/write";
+public final class Jotenberg implements AutoCloseable {
+    /**
+     * The Chromiumly hosted API, used when only an API key is configured.
+     */
+    public static final String HOSTED_API_ENDPOINT = "https://api.chromiumly.dev";
 
-    private static final String SCREENSHOTS_HTML_ROUTE = "forms/chromium/screenshot/html";
-    private static final String SCREENSHOTS_MARKDOWN_ROUTE = "forms/chromium/screenshot/markdown";
-    private static final String SCREENSHOTS_URL_ROUTE = "forms/chromium/screenshot/url";
-    private final MultipartEntityBuilder builder;
-    private final CloseableHttpClient client;
-    private final String endpoint;
-    private final ConversionHelper conversionHelper = new ConversionHelper(this);
-    private final HTTPRequestManager HTTPRequestManager = new HTTPRequestManager(this);
+    private final Transport transport;
+    private final HttpClient ownHttpClient;
+    private final ChromiumClient chromium;
+    private final LibreOfficeClient libreOffice;
+    private final PdfClient pdf;
+    private final SystemClient system;
 
     /**
-     * Constructs a Jotenberg object with the specified endpoint URL.
-     *
-     * @param endpoint The URL of the Gotenberg API endpoint.
-     * @throws MalformedURLException If the provided endpoint URL is not a valid URL.
+     * @param endpoint The Gotenberg endpoint, such as {@code http://localhost:3000}.
      */
-    public Jotenberg(String endpoint) throws MalformedURLException {
-        if (!CommonUtils.isValidURL(endpoint)) {
-            throw new MalformedURLException();
+    public Jotenberg(String endpoint) {
+        this(builder().endpoint(endpoint));
+    }
+
+    private Jotenberg(Builder builder) {
+        HttpClient httpClient = builder.httpClient != null ? builder.httpClient : defaultHttpClient();
+        this.ownHttpClient = builder.httpClient == null ? httpClient : null;
+        this.transport = new Transport(httpClient, builder.resolveEndpoint(), builder.headers(), builder.timeout);
+        this.chromium = new ChromiumClient(transport);
+        this.libreOffice = new LibreOfficeClient(transport);
+        this.pdf = new PdfClient(transport);
+        this.system = new SystemClient(transport);
+    }
+
+    /**
+     * @return A builder, to set authentication, headers and timeouts.
+     */
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    /**
+     * Configures a client from the environment: {@code GOTENBERG_ENDPOINT}, {@code GOTENBERG_API_BASIC_AUTH_USERNAME}
+     * and {@code GOTENBERG_API_BASIC_AUTH_PASSWORD}, or {@code CHROMIUMLY_API_KEY} for the hosted API.
+     *
+     * @return The client.
+     */
+    public static Jotenberg fromEnvironment() {
+        return fromEnvironment(System::getenv);
+    }
+
+    static Jotenberg fromEnvironment(Function<String, String> env) {
+        Builder builder = builder();
+        String endpoint = env.apply("GOTENBERG_ENDPOINT");
+        if (endpoint != null && !endpoint.isBlank()) {
+            builder.endpoint(endpoint);
         }
-        this.endpoint = endpoint;
-        this.builder = MultipartEntityBuilder.create().setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
-        this.client = HttpClients.createDefault();
-    }
-
-    public ConversionHelper getConversionHelper() {
-        return conversionHelper;
-    }
-
-    public CloseableHttpClient getClient() {
-        return client;
-    }
-
-    public String getEndpoint() {
-        return endpoint;
-    }
-
-    public MultipartEntityBuilder getBuilder() {
-        return builder;
-    }
-
-    /**
-     * Converts a document from a URL using the Chromium URL conversion route.
-     *
-     * @param url            The URL of the document to convert.
-     * @param pageProperties Page properties for the conversion.
-     * @return A CloseableHttpResponse containing the result of the conversion.
-     * @throws IOException If an I/O error occurs during the conversion process.
-     */
-    public CloseableHttpResponse convert(String url, ChromiumPageProperties pageProperties, ChromiumOptions options) throws IOException {
-        if (!CommonUtils.isValidURL(url)) {
-            throw new MalformedURLException();
+        String username = env.apply("GOTENBERG_API_BASIC_AUTH_USERNAME");
+        String password = env.apply("GOTENBERG_API_BASIC_AUTH_PASSWORD");
+        if (username != null && password != null) {
+            builder.basicAuth(username, password);
         }
-
-        this.builder.addTextBody("url", url);
-
-        return HTTPRequestManager.executeHttpPostRequest(endpoint.concat(CHROMIUM_URL_ROUTE), pageProperties, options);
-    }
-
-    /**
-     * Converts a document from a local file using the Chromium HTML conversion route.
-     *
-     * @param file           The local file to convert.
-     * @param pageProperties Page properties for the conversion.
-     * @return A CloseableHttpResponse containing the result of the conversion.
-     * @throws IOException If an I/O error occurs during the conversion process.
-     */
-    public CloseableHttpResponse convert(File file, ChromiumPageProperties pageProperties, ChromiumOptions options) throws IOException {
-        if (!CommonUtils.isIndex(file)) {
-            throw new IndexFileNotFoundExceptions();
+        String apiKey = env.apply("CHROMIUMLY_API_KEY");
+        if (apiKey != null && !apiKey.isBlank()) {
+            builder.apiKey(apiKey);
         }
-
-        this.builder.addBinaryBody(file.getName(), file);
-
-        return HTTPRequestManager.executeHttpPostRequest(endpoint.concat(CHROMIUM_HTML_ROUTE), pageProperties, options);
+        return builder.build();
     }
 
     /**
-     * Converts a list of Markdown files using the Chromium Markdown conversion route.
-     *
-     * @param files          The list of files to convert.
-     * @param pageProperties Page properties for the conversion.
-     * @return A CloseableHttpResponse containing the result of the conversion.
-     * @throws IOException If an I/O error occurs during the conversion process.
+     * @return The Chromium routes: URL, HTML and Markdown to PDF, and screenshots.
      */
-    public CloseableHttpResponse convert(List<File> files, ChromiumPageProperties pageProperties, ChromiumOptions options) throws IOException {
-        if (files.isEmpty()) {
-            throw new EmptyFileListException();
-        }
-
-        if (!CommonUtils.containsIndex(files)) {
-            throw new IndexFileNotFoundExceptions();
-        }
-
-        List<File> markdowns = files.stream().filter(CommonUtils::isMarkdown).toList();
-
-        if (markdowns.isEmpty()) {
-            throw new FileNotFoundException("Chromium's markdown route accepts a single index.html and markdown files.");
-        }
-
-        File indexFile = files.stream().filter(CommonUtils::isIndex).findFirst().orElseThrow();
-
-        this.builder.addBinaryBody(indexFile.getName(), indexFile);
-
-        markdowns.forEach(file -> this.builder.addBinaryBody(file.getName(), file));
-
-        return HTTPRequestManager.executeHttpPostRequest(endpoint.concat(CHROMIUM_MARKDOWN_ROUTE), pageProperties, options);
-    }
-
-
-    /**
-     * Screenshots a URL using the Chromium URL screenshot route.
-     *
-     * @param url             The URL to screenshot.
-     * @param imageProperties Image properties for the screenshot.
-     * @return A CloseableHttpResponse containing the result of the screenshot.
-     * @throws IOException If an I/O error occurs during the screenshot process.
-     */
-    public CloseableHttpResponse capture(String url, ImageProperties imageProperties, ScreenshotOptions options) throws IOException {
-        if (!CommonUtils.isValidURL(url)) {
-            throw new MalformedURLException();
-        }
-
-        this.builder.addTextBody("url", url);
-
-        return HTTPRequestManager.executeHttpPostRequest(endpoint.concat(SCREENSHOTS_URL_ROUTE), imageProperties, options);
+    public ChromiumClient chromium() {
+        return chromium;
     }
 
     /**
-     * Screenshots a local file using the Chromium HTML screenshot route.
-     *
-     * @param file            The local file to screenshot.
-     * @param imageProperties image properties for the screenshot.
-     * @return A CloseableHttpResponse containing the result of the screenshot.
-     * @throws IOException If an I/O error occurs during the screenshot process.
+     * @return The LibreOffice route: office documents to PDF.
      */
-    public CloseableHttpResponse capture(File file, ImageProperties imageProperties, ScreenshotOptions options) throws IOException {
-        if (!CommonUtils.isIndex(file)) {
-            throw new IndexFileNotFoundExceptions();
-        }
-
-        this.builder.addBinaryBody(file.getName(), file);
-
-        return HTTPRequestManager.executeHttpPostRequest(endpoint.concat(SCREENSHOTS_HTML_ROUTE), imageProperties, options);
+    public LibreOfficeClient libreOffice() {
+        return libreOffice;
     }
 
     /**
-     * Screenshots a list of Markdown files using the Chromium Markdown screenshot route.
-     *
-     * @param files           The list of files to screenshot.
-     * @param imageProperties Image properties for the screenshot.
-     * @param options         Screenshot options.
-     * @return A CloseableHttpResponse containing the result of the screenshot.
-     * @throws IOException If an I/O error occurs during the screenshot process.
+     * @return The PDF routes: stages on existing PDFs, and reading PDFs.
      */
-    public CloseableHttpResponse capture(List<File> files, ImageProperties imageProperties, ScreenshotOptions options) throws IOException {
-        if (files.isEmpty()) {
-            throw new EmptyFileListException();
-        }
-
-        if (!CommonUtils.containsIndex(files)) {
-            throw new IndexFileNotFoundExceptions();
-        }
-
-        List<File> markdowns = files.stream().filter(CommonUtils::isMarkdown).toList();
-
-        if (markdowns.isEmpty()) {
-            throw new FileNotFoundException("Chromium's screenshots markdown route accepts a single index.html and markdown files.");
-        }
-
-        File indexFile = files.stream().filter(CommonUtils::isIndex).findFirst().orElseThrow();
-
-        this.builder.addBinaryBody(indexFile.getName(), indexFile);
-
-        markdowns.forEach(file -> this.builder.addBinaryBody(file.getName(), file));
-
-        return HTTPRequestManager.executeHttpPostRequest(endpoint.concat(SCREENSHOTS_MARKDOWN_ROUTE), imageProperties, options);
+    public PdfClient pdf() {
+        return pdf;
     }
 
     /**
-     * Converts a list of files using LibreOffice.
-     * Please refer to <a href="https://gotenberg.dev/docs/modules/libreoffice">https://gotenberg.dev/docs/modules/libreoffice</a> for more details.
-     *
-     * @param files          The list of files to convert.
-     * @param pageProperties Page properties for the conversion.
-     * @param options        LibreOffice conversion options.
-     * @return A CloseableHttpResponse containing the result of the conversion.
-     * @throws IOException If an I/O error occurs during the conversion process.
+     * @return The system routes: health, version and debug.
      */
-    public CloseableHttpResponse convertWithLibreOffice(List<File> files, LibreOfficePageProperties pageProperties, LibreOfficeOptions options) throws IOException {
-        if (files.isEmpty()) {
-            throw new EmptyFileListException();
-        }
-
-        List<File> supportedFiles = files.stream().filter(CommonUtils::isSupported).toList();
-
-        if (supportedFiles.isEmpty()) {
-            throw new FileNotFoundException("File extensions are not supported by Libre Office. Please refer to https://gotenberg.dev/docs/modules/libreoffice for more details.");
-        }
-
-        supportedFiles.forEach(file -> this.builder.addBinaryBody(file.getName(), file));
-
-        return HTTPRequestManager.executeHttpPostRequest(endpoint.concat(LIBRE_OFFICE_ROUTE), pageProperties, options);
+    public SystemClient system() {
+        return system;
     }
 
     /**
-     * Converts a list of documents using PDF Engines.
-     *
-     * @param files   The list of files to convert.
-     * @param options PDF Engines conversion options.
-     * @return A CloseableHttpResponse containing the result of the conversion.
-     * @throws IOException If an I/O error occurs during the conversion process.
+     * @return The Gotenberg endpoint, ending with a slash.
      */
-    public CloseableHttpResponse convertWithPdfEngines(List<File> files, PDFEnginesConversionOptions options) throws IOException {
-        return HTTPRequestManager.getPdfEnginesHttpResponse(files, options, endpoint.concat(PDF_ENGINES_CONVERT_ROUTE));
+    public String endpoint() {
+        return transport.endpoint();
     }
 
     /**
-     * Merges a list of PDF documents using PDF Engines.
-     *
-     * @param files   The list of PDF files to merge.
-     * @param options PDF Engines merge options.
-     * @return A CloseableHttpResponse containing the result of the merge.
-     * @throws IOException If an I/O error occurs during the merge process.
+     * Closes the HTTP client Jotenberg created, where the JDK lets it (Java 21 and later). A client passed to
+     * {@link Builder#httpClient} is left open: its owner closes it.
      */
-    public CloseableHttpResponse mergeWithPdfEngines(List<File> files, PDFEnginesMergeOptions options) throws IOException {
-        return HTTPRequestManager.getPdfEnginesHttpResponse(files, options, endpoint.concat(PDF_ENGINES_MERGE_ROUTE));
-    }
-
-    /**
-     * Reads metadata from PDF files using PDF Engines.
-     *
-     * @param files The list of PDF files.
-     * @return A CloseableHttpResponse containing the metadata.
-     * @throws IOException If an I/O error occurs during the operation.
-     */
-    public CloseableHttpResponse readMetadataWithPdfEngines(List<File> files) throws IOException {
-        return HTTPRequestManager.getPdfEnginesHttpResponse(files, null, endpoint.concat(PDF_ENGINES_READ_METADATA_ROUTE));
-    }
-
-    /**
-     * Writes metadata to PDF files using PDF Engines.
-     *
-     * @param files    The list of PDF files.
-     * @param metadata The metadata to write as a JSON string.
-     * @return A CloseableHttpResponse containing the result.
-     * @throws IOException If an I/O error occurs during the operation.
-     */
-    public CloseableHttpResponse writeMetadataWithPdfEngines(List<File> files, String metadata) throws IOException {
-        return HTTPRequestManager.getPdfEnginesHttpResponseWithMetadata(files, metadata, endpoint.concat(PDF_ENGINES_WRITE_METADATA_ROUTE));
-    }
-
-    /**
-     * Splits PDF files using PDF Engines.
-     *
-     * @param files      The list of PDF files to split.
-     * @param splitMode  The split mode ('pages' or 'intervals').
-     * @param splitSpan  The split span.
-     * @param splitUnify Whether to unify (only for pages mode).
-     * @param flatten    Whether to flatten.
-     * @return A CloseableHttpResponse containing the result.
-     * @throws IOException If an I/O error occurs during the operation.
-     */
-    public CloseableHttpResponse splitWithPdfEngines(List<File> files, String splitMode, String splitSpan, Boolean splitUnify, Boolean flatten) throws IOException {
-        return HTTPRequestManager.getPdfEnginesHttpResponseWithSplit(files, splitMode, splitSpan, splitUnify, flatten, endpoint.concat(PDF_ENGINES_SPLIT_ROUTE));
-    }
-
-    /**
-     * Flattens PDF files using PDF Engines.
-     *
-     * @param files The list of PDF files to flatten.
-     * @return A CloseableHttpResponse containing the result.
-     * @throws IOException If an I/O error occurs during the operation.
-     */
-    public CloseableHttpResponse flattenWithPdfEngines(List<File> files) throws IOException {
-        return HTTPRequestManager.getPdfEnginesHttpResponse(files, null, endpoint.concat(PDF_ENGINES_FLATTEN_ROUTE));
-    }
-
-    /**
-     * Encrypts PDF files using PDF Engines.
-     *
-     * @param files   The list of PDF files to encrypt.
-     * @param options PDF Engines encrypt options.
-     * @return A CloseableHttpResponse containing the result.
-     * @throws IOException If an I/O error occurs during the operation.
-     */
-    public CloseableHttpResponse encryptWithPdfEngines(List<File> files, PDFEnginesEncryptOptions options) throws IOException {
-        return HTTPRequestManager.getPdfEnginesHttpResponseWithEncrypt(files, options, endpoint.concat(PDF_ENGINES_ENCRYPT_ROUTE));
-    }
-
-    /**
-     * Embeds files into PDF files using PDF Engines.
-     *
-     * @param files  The list of PDF files to embed files into.
-     * @param embeds The list of files to embed.
-     * @return A CloseableHttpResponse containing the result.
-     * @throws IOException If an I/O error occurs during the operation.
-     */
-    public CloseableHttpResponse embedWithPdfEngines(List<File> files, List<File> embeds) throws IOException {
-        return HTTPRequestManager.getPdfEnginesHttpResponseWithEmbed(files, embeds, endpoint.concat(PDF_ENGINES_EMBED_ROUTE));
-    }
-
-    /**
-     * Applies a watermark to PDF files using PDF Engines.
-     *
-     * @param files               The list of PDF files to process.
-     * @param watermarkSource     Watermark source type ('text', 'image', or 'pdf').
-     * @param watermarkExpression Watermark expression.
-     * @param watermarkPages      Optional page ranges.
-     * @param watermarkOptions    Optional engine-specific options as JSON string.
-     * @param watermark           Optional watermark file required for image/pdf sources.
-     * @return A CloseableHttpResponse containing the result.
-     * @throws IOException If an I/O error occurs during the operation.
-     */
-    public CloseableHttpResponse watermarkWithPdfEngines(
-            List<File> files,
-            String watermarkSource,
-            String watermarkExpression,
-            String watermarkPages,
-            String watermarkOptions,
-            File watermark
-    ) throws IOException {
-        return HTTPRequestManager.getPdfEnginesHttpResponseWithWatermarkOrStamp(
-                files,
-                "watermark",
-                watermarkSource,
-                watermarkExpression,
-                watermarkPages,
-                watermarkOptions,
-                watermark,
-                endpoint.concat(PDF_ENGINES_WATERMARK_ROUTE)
-        );
-    }
-
-    /**
-     * Applies a stamp to PDF files using PDF Engines.
-     *
-     * @param files           The list of PDF files to process.
-     * @param stampSource     Stamp source type ('text', 'image', or 'pdf').
-     * @param stampExpression Stamp expression.
-     * @param stampPages      Optional page ranges.
-     * @param stampOptions    Optional engine-specific options as JSON string.
-     * @param stamp           Optional stamp file required for image/pdf sources.
-     * @return A CloseableHttpResponse containing the result.
-     * @throws IOException If an I/O error occurs during the operation.
-     */
-    public CloseableHttpResponse stampWithPdfEngines(
-            List<File> files,
-            String stampSource,
-            String stampExpression,
-            String stampPages,
-            String stampOptions,
-            File stamp
-    ) throws IOException {
-        return HTTPRequestManager.getPdfEnginesHttpResponseWithWatermarkOrStamp(
-                files,
-                "stamp",
-                stampSource,
-                stampExpression,
-                stampPages,
-                stampOptions,
-                stamp,
-                endpoint.concat(PDF_ENGINES_STAMP_ROUTE)
-        );
-    }
-
-    /**
-     * Rotates pages in PDF files using PDF Engines.
-     *
-     * @param files       The list of PDF files to process.
-     * @param rotateAngle Rotation angle (90, 180, or 270).
-     * @param rotatePages Optional page ranges.
-     * @return A CloseableHttpResponse containing the result.
-     * @throws IOException If an I/O error occurs during the operation.
-     */
-    public CloseableHttpResponse rotateWithPdfEngines(List<File> files, int rotateAngle, String rotatePages) throws IOException {
-        return HTTPRequestManager.getPdfEnginesHttpResponseWithRotate(files, rotateAngle, rotatePages, endpoint.concat(PDF_ENGINES_ROTATE_ROUTE));
-    }
-
-    /**
-     * Reads bookmarks from PDF files using PDF Engines.
-     *
-     * @param files The list of PDF files to process.
-     * @return A CloseableHttpResponse containing the result.
-     * @throws IOException If an I/O error occurs during the operation.
-     */
-    public CloseableHttpResponse readBookmarksWithPdfEngines(List<File> files) throws IOException {
-        return HTTPRequestManager.getPdfEnginesHttpResponse(files, null, endpoint.concat(PDF_ENGINES_READ_BOOKMARKS_ROUTE));
-    }
-
-    /**
-     * Writes bookmarks to PDF files using PDF Engines.
-     *
-     * @param files     The list of PDF files to process.
-     * @param bookmarks Bookmarks as a JSON string.
-     * @return A CloseableHttpResponse containing the result.
-     * @throws IOException If an I/O error occurs during the operation.
-     */
-    public CloseableHttpResponse writeBookmarksWithPdfEngines(List<File> files, String bookmarks) throws IOException {
-        return HTTPRequestManager.getPdfEnginesHttpResponseWithBookmarks(files, bookmarks, endpoint.concat(PDF_ENGINES_WRITE_BOOKMARKS_ROUTE));
-    }
-
-
     @Override
-    public void close() throws Exception {
-        this.client.close();
+    public void close() {
+        if (ownHttpClient instanceof AutoCloseable closeable) {
+            try {
+                closeable.close();
+            } catch (Exception e) {
+                throw new JotenbergException("Could not close the HTTP client", e);
+            }
+        }
+    }
+
+    private static HttpClient defaultHttpClient() {
+        return HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NORMAL).build();
+    }
+
+    /**
+     * Builder configures a {@link Jotenberg} client.
+     */
+    public static final class Builder {
+        private final Map<String, String> headers = new LinkedHashMap<>();
+        private String endpoint;
+        private String basicAuth;
+        private String apiKey;
+        private Duration timeout;
+        private HttpClient httpClient;
+
+        private Builder() {
+        }
+
+        /**
+         * @param endpoint The Gotenberg endpoint, such as {@code http://localhost:3000}. Optional with an API key.
+         * @return This builder.
+         */
+        public Builder endpoint(String endpoint) {
+            URI uri;
+            try {
+                uri = URI.create(endpoint);
+            } catch (IllegalArgumentException | NullPointerException e) {
+                throw new IllegalArgumentException("Invalid Gotenberg endpoint: " + endpoint, e);
+            }
+            if (!"http".equals(uri.getScheme()) && !"https".equals(uri.getScheme()) || uri.getHost() == null) {
+                throw new IllegalArgumentException("The Gotenberg endpoint must be an absolute http or https URL, got " + endpoint);
+            }
+            this.endpoint = endpoint;
+            return this;
+        }
+
+        /**
+         * Authenticates with basic auth, for Gotenberg started with {@code --api-enable-basic-auth}.
+         *
+         * @param username The username.
+         * @param password The password.
+         * @return This builder.
+         */
+        public Builder basicAuth(String username, String password) {
+            this.basicAuth = Transport.basicAuth(username, password);
+            return this;
+        }
+
+        /**
+         * Authenticates with an {@code X-Api-Key}, over basic auth. Without an endpoint, requests go to the hosted
+         * API at {@value #HOSTED_API_ENDPOINT}.
+         *
+         * @param apiKey The API key.
+         * @return This builder.
+         */
+        public Builder apiKey(String apiKey) {
+            this.apiKey = apiKey;
+            return this;
+        }
+
+        /**
+         * Sends a header with every request, such as a bearer token for a proxy in front of Gotenberg.
+         *
+         * @param name  The header name.
+         * @param value The header value.
+         * @return This builder.
+         */
+        public Builder header(String name, String value) {
+            headers.put(name, value);
+            return this;
+        }
+
+        /**
+         * @param timeout The timeout of each request; none by default.
+         * @return This builder.
+         */
+        public Builder timeout(Duration timeout) {
+            this.timeout = timeout;
+            return this;
+        }
+
+        /**
+         * @param httpClient The HTTP client to send with, for proxies, SSL or executors.
+         * @return This builder.
+         */
+        public Builder httpClient(HttpClient httpClient) {
+            this.httpClient = httpClient;
+            return this;
+        }
+
+        /**
+         * @return The client.
+         */
+        public Jotenberg build() {
+            return new Jotenberg(this);
+        }
+
+        private String resolveEndpoint() {
+            if (endpoint != null) {
+                return endpoint;
+            }
+            if (apiKey != null) {
+                return HOSTED_API_ENDPOINT;
+            }
+            throw new IllegalStateException("Set a Gotenberg endpoint, or an API key for the hosted API");
+        }
+
+        private Map<String, String> headers() {
+            Map<String, String> all = new LinkedHashMap<>(headers);
+            if (apiKey != null) {
+                all.put("X-Api-Key", apiKey);
+            } else if (basicAuth != null) {
+                all.put("Authorization", basicAuth);
+            }
+            return all;
+        }
+
     }
 }

@@ -2,68 +2,65 @@ package io.bitizens.common;
 
 import org.json.JSONObject;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
- * Represents a download from URL configuration.
+ * DownloadFrom is a URL Gotenberg downloads before it starts, as if the file had been uploaded.
  */
-public class DownloadFrom {
+public final class DownloadFrom {
     private final String url;
-    private final Map<String, String> extraHttpHeaders;
-    private final String field;
+    private final Map<String, String> extraHttpHeaders = new LinkedHashMap<>();
+    private String filename;
 
-    private DownloadFrom(Builder builder) {
-        this.url = builder.url;
-        this.extraHttpHeaders = builder.extraHttpHeaders;
-        this.field = builder.field;
+    private DownloadFrom(String url) {
+        this.url = Objects.requireNonNull(url, "url");
     }
 
-    public String getUrl() {
-        return url;
+    /**
+     * @param url An absolute {@code http} or {@code https} URL.
+     * @return The download.
+     */
+    public static DownloadFrom of(String url) {
+        return new DownloadFrom(url);
     }
 
-    public Map<String, String> getExtraHttpHeaders() {
-        return extraHttpHeaders;
+    /**
+     * Sends a header with the download.
+     *
+     * @param name  The header name.
+     * @param value The header value.
+     * @return This download.
+     */
+    public DownloadFrom extraHttpHeader(String name, String value) {
+        extraHttpHeaders.put(name, value);
+        return this;
     }
 
-    public String getField() {
-        return field;
+    /**
+     * Names the downloaded file, over the server's {@code Content-Disposition} header and the URL path.
+     *
+     * @param filename The file name, extension included.
+     * @return This download.
+     */
+    public DownloadFrom filename(String filename) {
+        this.filename = filename;
+        return this;
     }
 
-    public JSONObject toJSONObject() {
+    /**
+     * @return The entry as Gotenberg's {@code downloadFrom} field takes it.
+     */
+    JSONObject toJson() {
         JSONObject json = new JSONObject();
         json.put("url", url);
-        if (extraHttpHeaders != null) {
+        if (!extraHttpHeaders.isEmpty()) {
             json.put("extraHttpHeaders", new JSONObject(extraHttpHeaders));
         }
-        if (field != null) {
-            json.put("field", field);
+        if (filename != null) {
+            json.put("filename", filename);
         }
         return json;
     }
-
-    public static class Builder {
-        private String url;
-        private Map<String, String> extraHttpHeaders;
-        private String field;
-
-        public Builder(String url) {
-            this.url = url;
-        }
-
-        public Builder extraHttpHeaders(Map<String, String> extraHttpHeaders) {
-            this.extraHttpHeaders = extraHttpHeaders;
-            return this;
-        }
-
-        public Builder field(String field) {
-            this.field = field;
-            return this;
-        }
-
-        public DownloadFrom build() {
-            return new DownloadFrom(this);
-        }
-    }
 }
-
