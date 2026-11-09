@@ -1,4 +1,4 @@
-package io.bitizens.screenshots;
+package io.bitizens.chromium;
 
 /**
  * ImageFormat is an enumeration of various image formats for screenshots.
