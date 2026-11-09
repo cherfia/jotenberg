@@ -1,93 +1,60 @@
 package io.bitizens.common;
 
+import org.json.JSONObject;
+
+import java.util.Objects;
+
 /**
- * Represents a cookie to be used in Chromium conversions.
+ * Cookie is a cookie Chromium sets before it loads the page.
  */
-public class Cookie {
-    private final String name;
-    private final String value;
-    private final String domain;
-    private final String path;
-    private final Boolean secure;
-    private final Boolean httpOnly;
-    private final String sameSite;
+public final class Cookie {
+    /**
+     * The cookie's {@code SameSite} attribute.
+     */
+    public enum SameSite {Strict, Lax, None}
 
-    private Cookie(Builder builder) {
-        this.name = builder.name;
-        this.value = builder.value;
-        this.domain = builder.domain;
-        this.path = builder.path;
-        this.secure = builder.secure;
-        this.httpOnly = builder.httpOnly;
-        this.sameSite = builder.sameSite;
+    private final JSONObject json = new JSONObject();
+
+    private Cookie(String name, String value, String domain) {
+        json.put("name", Objects.requireNonNull(name, "name"));
+        json.put("value", Objects.requireNonNull(value, "value"));
+        json.put("domain", Objects.requireNonNull(domain, "domain"));
     }
 
-    public String getName() {
-        return name;
+    /**
+     * @param name   The cookie's name.
+     * @param value  The cookie's value.
+     * @param domain The domain it's sent to.
+     * @return The cookie.
+     */
+    public static Cookie of(String name, String value, String domain) {
+        return new Cookie(name, value, domain);
     }
 
-    public String getValue() {
-        return value;
+    public Cookie path(String path) {
+        json.put("path", path);
+        return this;
     }
 
-    public String getDomain() {
-        return domain;
+    public Cookie secure(boolean secure) {
+        json.put("secure", secure);
+        return this;
     }
 
-    public String getPath() {
-        return path;
+    public Cookie httpOnly(boolean httpOnly) {
+        json.put("httpOnly", httpOnly);
+        return this;
     }
 
-    public Boolean getSecure() {
-        return secure;
+    public Cookie sameSite(SameSite sameSite) {
+        json.put("sameSite", sameSite.name());
+        return this;
     }
 
-    public Boolean getHttpOnly() {
-        return httpOnly;
-    }
-
-    public String getSameSite() {
-        return sameSite;
-    }
-
-    public static class Builder {
-        private String name;
-        private String value;
-        private String domain;
-        private String path;
-        private Boolean secure;
-        private Boolean httpOnly;
-        private String sameSite;
-
-        public Builder(String name, String value, String domain) {
-            this.name = name;
-            this.value = value;
-            this.domain = domain;
-        }
-
-        public Builder path(String path) {
-            this.path = path;
-            return this;
-        }
-
-        public Builder secure(Boolean secure) {
-            this.secure = secure;
-            return this;
-        }
-
-        public Builder httpOnly(Boolean httpOnly) {
-            this.httpOnly = httpOnly;
-            return this;
-        }
-
-        public Builder sameSite(String sameSite) {
-            this.sameSite = sameSite;
-            return this;
-        }
-
-        public Cookie build() {
-            return new Cookie(this);
-        }
+    /**
+     * @return The cookie as Gotenberg's {@code cookies} field takes it.
+     */
+    public JSONObject toJson() {
+        return new JSONObject(json.toMap());
     }
 }
-
