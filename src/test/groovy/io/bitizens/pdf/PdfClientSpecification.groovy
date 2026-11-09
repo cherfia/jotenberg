@@ -34,7 +34,7 @@ class PdfClientSpecification extends Specification {
         def result = pdf.pipe(PdfRequest.of(report), Stage.select('1-2'), Stage.optimize())
 
         then:
-        new String(result) == '%PDF-1.7 stub'
+        result.text() == '%PDF-1.7 stub'
         stub.last.path == '/forms/pdf/pipe'
         stub.last.fileNames() == ['report.pdf']
         new JSONArray(stub.last.fields().stages).toList() == [[op: 'select', pages: '1-2'], [op: 'optimize']]
@@ -227,7 +227,7 @@ class PdfClientSpecification extends Specification {
         stub.answer(200, 'Page one\fPage two')
 
         then:
-        new String(pdf.extractText(PdfRequest.of(report), Stage.extractText().pages('1-2')), 'UTF-8') == 'Page one\fPage two'
+        pdf.extractText(PdfRequest.of(report), Stage.extractText().pages('1-2')).text() == 'Page one\fPage two'
 
         when:
         def zip = [0x50, 0x4B, 0x03, 0x04, 0xFF, 0xFE] as byte[]
@@ -236,7 +236,7 @@ class PdfClientSpecification extends Specification {
         Files.write(annex, '%PDF-1.7 annex'.bytes)
 
         then:
-        pdf.extractText(PdfRequest.of(report, annex), Stage.extractText()) == zip
+        pdf.extractText(PdfRequest.of(report, annex), Stage.extractText()).bytes() == zip
     }
 
     def "should turn a read answer that isn't the expected JSON into a JotenbergException"() {

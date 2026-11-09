@@ -12,7 +12,7 @@ public abstract class DeliveredRequest<T extends DeliveredRequest<T>> extends Re
     private String outputFilename;
 
     /**
-     * Uploads the result to a webhook instead of answering with it; the method then returns an empty array.
+     * Uploads the result to a webhook instead of answering with it; the method then returns an empty result.
      *
      * @param webhook The webhook.
      * @return This request.

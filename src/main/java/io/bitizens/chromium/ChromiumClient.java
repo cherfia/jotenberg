@@ -1,5 +1,6 @@
 package io.bitizens.chromium;
 
+import io.bitizens.core.GotenbergResult;
 import io.bitizens.internal.Multipart;
 import io.bitizens.internal.Transport;
 
@@ -23,42 +24,42 @@ public final class ChromiumClient {
     }
 
     /** @return The PDF, or a ZIP when a stage makes several files. */
-    public byte[] convert(UrlConversion conversion) {
+    public GotenbergResult convert(UrlConversion conversion) {
         Multipart form = new Multipart();
         conversion.addTo(form);
         return transport.post(CONVERT + "url", form, conversion.headers());
     }
 
     /** @return The PDF, or a ZIP when a stage makes several files. */
-    public byte[] convert(HtmlConversion conversion) {
+    public GotenbergResult convert(HtmlConversion conversion) {
         Multipart form = new Multipart();
         conversion.addTo(form);
         return transport.post(CONVERT + "html", form, conversion.headers());
     }
 
     /** @return The PDF, or a ZIP when a stage makes several files. */
-    public byte[] convert(MarkdownConversion conversion) {
+    public GotenbergResult convert(MarkdownConversion conversion) {
         Multipart form = new Multipart();
         conversion.addTo(form);
         return transport.post(CONVERT + "markdown", form, conversion.headers());
     }
 
     /** @return The image, as PNG unless the screenshot sets another format. */
-    public byte[] screenshot(UrlScreenshot screenshot) {
+    public GotenbergResult screenshot(UrlScreenshot screenshot) {
         Multipart form = new Multipart();
         screenshot.addTo(form);
         return transport.post(SCREENSHOT + "url", form, screenshot.headers());
     }
 
     /** @return The image, as PNG unless the screenshot sets another format. */
-    public byte[] screenshot(HtmlScreenshot screenshot) {
+    public GotenbergResult screenshot(HtmlScreenshot screenshot) {
         Multipart form = new Multipart();
         screenshot.addTo(form);
         return transport.post(SCREENSHOT + "html", form, screenshot.headers());
     }
 
     /** @return The image, as PNG unless the screenshot sets another format. */
-    public byte[] screenshot(MarkdownScreenshot screenshot) {
+    public GotenbergResult screenshot(MarkdownScreenshot screenshot) {
         Multipart form = new Multipart();
         screenshot.addTo(form);
         return transport.post(SCREENSHOT + "markdown", form, screenshot.headers());

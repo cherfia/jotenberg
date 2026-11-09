@@ -1,6 +1,7 @@
 package io.bitizens.internal;
 
 import io.bitizens.core.GotenbergException;
+import io.bitizens.core.GotenbergResult;
 import io.bitizens.core.JotenbergException;
 
 import java.io.IOException;
@@ -63,13 +64,14 @@ public final class Transport {
      * @param route          The route, such as {@code forms/pdf/merge}.
      * @param form           The form to send.
      * @param requestHeaders Headers of this request only, such as {@code Gotenberg-Trace}.
-     * @return The body Gotenberg answered.
+     * @return What Gotenberg answered.
      */
-    public byte[] post(String route, Multipart form, Map<String, String> requestHeaders) {
+    public GotenbergResult post(String route, Multipart form, Map<String, String> requestHeaders) {
         HttpRequest.Builder request = request(route, requestHeaders)
                 .header("Content-Type", form.contentType())
                 .POST(form.body());
-        return send(route, request.build()).body();
+        HttpResponse<byte[]> response = send(route, request.build());
+        return new GotenbergResult(response.body(), response.headers());
     }
 
     /**

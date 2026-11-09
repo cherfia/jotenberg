@@ -1,5 +1,6 @@
 package io.bitizens.libreoffice;
 
+import io.bitizens.core.GotenbergResult;
 import io.bitizens.internal.Multipart;
 import io.bitizens.internal.Transport;
 
@@ -23,7 +24,7 @@ public final class LibreOfficeClient {
      * @param conversion The documents and the options.
      * @return One PDF, or a ZIP for several documents unless a merge stage joins them.
      */
-    public byte[] convert(LibreOfficeConversion conversion) {
+    public GotenbergResult convert(LibreOfficeConversion conversion) {
         Multipart form = new Multipart();
         conversion.addTo(form);
         return transport.post("forms/libreoffice/convert", form, conversion.headers());

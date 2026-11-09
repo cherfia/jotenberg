@@ -156,13 +156,29 @@ Jotenberg client = Jotenberg.builder().apiKey("your-api-key").build();
 
 ## Results and errors
 
-Every method returns the result: a `byte[]` for files, or a typed value for the routes that read. When Gotenberg answers
-an error, it throws a `GotenbergException`, whose `status()`, `trace()` and `body()` say what failed:
+The routes that make files return a `GotenbergResult`: the file, and what Gotenberg says about it. The routes that read
+return typed records instead.
+
+```java
+GotenbergResult result = client.chromium().convert(UrlConversion.of("https://example.com"));
+
+result.writeTo(Path.of("example.pdf"));     // or result.bytes(), or result.text() for extracted text
+result.isZip();                             // several files came back in a ZIP
+result.contentType();                       // Optional[application/pdf]
+result.filename();                          // the name Gotenberg gave it
+result.trace();                             // Gotenberg-Trace, to find the request in Gotenberg's logs
+result.remediationResidual();               // after a remediate stage: the violations left, 0 if it conforms
+```
+
+Whether a result is one file or a ZIP can depend on the input: a split into one part answers a PDF, into several a
+ZIP. Check `isZip()` rather than assuming.
+
+When Gotenberg answers an error, it throws a `GotenbergException`, whose `status()`, `trace()` and `body()` say what
+failed:
 
 ```java
 try {
-    byte[] pdf = client.chromium().convert(UrlConversion.of("https://example.com"));
-    Files.write(Path.of("example.pdf"), pdf);
+    client.chromium().convert(UrlConversion.of("https://example.com")).writeTo(Path.of("example.pdf"));
 } catch (GotenbergException e) {
     System.err.println(e.status() + " " + e.body()); // e.g. 400 Invalid form data: …
 }
@@ -177,21 +193,21 @@ throw an `IllegalArgumentException` before the request is sent.
 
 ```java
 // A URL
-byte[] pdf = client.chromium().convert(UrlConversion.of("https://example.com"));
+GotenbergResult pdf = client.chromium().convert(UrlConversion.of("https://example.com"));
 
 // An HTML page, uploaded as index.html, with the files it references
-byte[] invoice = client.chromium().convert(HtmlConversion.of(Path.of("invoice.html"))
+GotenbergResult invoice = client.chromium().convert(HtmlConversion.of(Path.of("invoice.html"))
         .asset(Path.of("style.css"))
         .asset(Path.of("logo.png")));
 
 // Markdown files, placed in an index.html with {{ toHTML "notes.md" }}
-byte[] notes = client.chromium().convert(MarkdownConversion.of(Path.of("template.html"), Path.of("notes.md")));
+GotenbergResult notes = client.chromium().convert(MarkdownConversion.of(Path.of("template.html"), Path.of("notes.md")));
 ```
 
 Conversions take the page layout, the header and footer, waits, network checks and more:
 
 ```java
-byte[] report = client.chromium().convert(UrlConversion.of("https://example.com/report")
+GotenbergResult report = client.chromium().convert(UrlConversion.of("https://example.com/report")
         .paperSize(PaperSize.A4)
         .margins("1cm")
         .landscape(true)
@@ -223,7 +239,7 @@ byte[] report = client.chromium().convert(UrlConversion.of("https://example.com/
 ### Screenshots
 
 ```java
-byte[] image = client.chromium().screenshot(UrlScreenshot.of("https://example.com")
+GotenbergResult image = client.chromium().screenshot(UrlScreenshot.of("https://example.com")
         .format(ImageFormat.JPEG)
         .quality(80)
         .width(1280)
@@ -241,7 +257,7 @@ but not the page layout or stages.
 document; several documents answer a ZIP, unless a `merge` stage joins them.
 
 ```java
-byte[] pdf = client.libreOffice().convert(LibreOfficeConversion.of(Path.of("annex.docx"), Path.of("report.docx"))
+GotenbergResult pdf = client.libreOffice().convert(LibreOfficeConversion.of(Path.of("annex.docx"), Path.of("report.docx"))
         .paperSize(PaperSize.A4)
         .nativePdfa(NativePdfa.PDF_A_2B)          // PDF/A at export
         .nativeWatermarkText("DRAFT")
@@ -259,7 +275,7 @@ list them, each on what the previous one produced. Chromium conversions, LibreOf
 `client.pdf().pipe()` take a list:
 
 ```java
-byte[] pdf = client.chromium().convert(HtmlConversion.of(Path.of("report.html"))
+GotenbergResult pdf = client.chromium().convert(HtmlConversion.of(Path.of("report.html"))
         .stages(
                 Stage.select("1-3"),
                 Stage.stampText("DRAFT").at(72, 72).fontSize(24).color("#ff0000"),
@@ -309,27 +325,28 @@ of their names.
 PdfClient pdf = client.pdf();
 
 // Several stages
-byte[] draft = pdf.pipe(PdfRequest.of(Path.of("report.pdf")),
+GotenbergResult draft = pdf.pipe(PdfRequest.of(Path.of("report.pdf")),
         Stage.select("1-2"),
         Stage.stampText("DRAFT").at(72, 72),
         Stage.optimize());
 
 // One stage per method
-byte[] merged = pdf.merge(PdfRequest.of(Path.of("1-cover.pdf"), Path.of("2-body.pdf")));
-byte[] parts = pdf.split(PdfRequest.of(Path.of("report.pdf")), Stage.split().ranges("1", "2-3")); // a ZIP
-byte[] locked = pdf.encrypt(PdfRequest.of(Path.of("report.pdf")),
+GotenbergResult merged = pdf.merge(PdfRequest.of(Path.of("1-cover.pdf"), Path.of("2-body.pdf")));
+GotenbergResult parts = pdf.split(PdfRequest.of(Path.of("report.pdf")), Stage.split().ranges("1", "2-3")); // a ZIP
+GotenbergResult locked = pdf.encrypt(PdfRequest.of(Path.of("report.pdf")),
         Stage.encrypt().userPassword("open-me").permissions(EncryptPermissions.create().print(false)));
-byte[] signed = pdf.sign(PdfRequest.of(Path.of("contract.pdf")),
+GotenbergResult signed = pdf.sign(PdfRequest.of(Path.of("contract.pdf")),
         Stage.sign(StageFile.of(Path.of("company.p12"))).certificatePassword("secret").pades(true));
-byte[] invoice = pdf.remediate(PdfRequest.of(Path.of("invoice.pdf")),
+GotenbergResult invoice = pdf.remediate(PdfRequest.of(Path.of("invoice.pdf")),
         Stage.remediate(ConformanceProfile.FACTUR_X)
                 .facturX(StageFile.of(Path.of("factur-x.xml")), FacturXLevel.EN_16931));
-byte[] text = pdf.extractText(PdfRequest.of(Path.of("report.pdf")), Stage.extractText().pages("1")); // UTF-8; a ZIP for several PDFs
+String text = pdf.extractText(PdfRequest.of(Path.of("report.pdf")), Stage.extractText().pages("1")).text(); // a ZIP for several PDFs
 ```
 
 `PdfRequest.of(FileInput.of(bytes, "1-cover.pdf"))` sends in-memory PDFs under the names you choose.
 
-`remediate` answers even when violations remain; check the result with `validate`.
+`remediate` answers even when violations remain: `invoice.remediationResidual()` counts them, `0` when the PDF
+conforms, and `validate` lists them.
 
 ### Read PDFs
 
@@ -352,7 +369,7 @@ Map<String, PdfValidation> validation = pdf.validate(PdfRead.of(Path.of("archive
 Every request takes these besides its own files:
 
 ```java
-byte[] merged = client.pdf().merge(PdfRequest.of(Path.of("cover.pdf"))
+GotenbergResult merged = client.pdf().merge(PdfRequest.of(Path.of("cover.pdf"))
         .archive(Path.of("chapters.zip"))                           // unpacked by Gotenberg
         .downloadFrom(DownloadFrom.of("https://files.example.com/annex.pdf")
                 .extraHttpHeader("Authorization", "Bearer …")
@@ -361,9 +378,10 @@ byte[] merged = client.pdf().merge(PdfRequest.of(Path.of("cover.pdf"))
         .trace("request-42"));                                      // Gotenberg-Trace
 ```
 
+
 ### Webhooks
 
-With a webhook, Gotenberg answers right away, so the method returns an empty array. It then uploads the result to the
+With a webhook, Gotenberg answers right away, so the method returns an empty result. It then uploads the result to the
 webhook URL, and posts a `webhook.success` or `webhook.error` event to the events URL, which Gotenberg requires:
 
 ```java
@@ -401,7 +419,7 @@ Jotenberg 3 targets Gotenberg 9 and its API is new; most changes follow
 | `client.capture(…)`                                               | `client.chromium().screenshot(UrlScreenshot.of(url)…)`, and the HTML and Markdown screenshots |
 | `client.convertWithLibreOffice(files, pageProperties, options)`   | `client.libreOffice().convert(LibreOfficeConversion.of(files…)…)`                            |
 | `ChromiumPageProperties`, `ChromiumOptions`, `ImageProperties`, `ScreenshotOptions`, `LibreOfficePageProperties`, `LibreOfficeOptions` | Setters on the conversion or screenshot itself |
-| `CloseableHttpResponse`                                           | `byte[]`, or a typed result; errors throw `GotenbergException`                               |
+| `CloseableHttpResponse`                                           | `GotenbergResult`, or a typed record for the read routes; errors throw `GotenbergException`  |
 | `mergeWithPdfEngines(files, options)`                             | `client.pdf().merge(PdfRequest.of(files…))`                                                  |
 | `splitWithPdfEngines(files, mode, span, unify, flatten)`          | `pdf().split(…, Stage.split().every(n))` or `.ranges(…)`; `pdf().select(…)` for unify         |
 | `flattenWithPdfEngines(files)`                                    | `pdf().flattenForm(…)`                                                                       |
