@@ -70,7 +70,7 @@ class SystemClientSpecification extends Specification {
         stub.answer(200, '{"version":"9.2.0","modules":["api"]}')
 
         then:
-        system.debug().getString('version') == '9.2.0'
+        system.debug() == [version: '9.2.0', modules: ['api']]
 
         when:
         stub.answer(404, 'Not Found')

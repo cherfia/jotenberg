@@ -1,7 +1,7 @@
 package io.bitizens;
 
 import io.bitizens.chromium.ChromiumClient;
-import io.bitizens.core.Transport;
+import io.bitizens.internal.Transport;
 import io.bitizens.libreoffice.LibreOfficeClient;
 import io.bitizens.pdf.PdfClient;
 import io.bitizens.system.SystemClient;

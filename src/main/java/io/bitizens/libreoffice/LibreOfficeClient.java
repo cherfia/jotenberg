@@ -1,7 +1,7 @@
 package io.bitizens.libreoffice;
 
-import io.bitizens.core.Multipart;
-import io.bitizens.core.Transport;
+import io.bitizens.internal.Multipart;
+import io.bitizens.internal.Transport;
 
 /**
  * LibreOfficeClient wraps Gotenberg's LibreOffice route. A non-2xx answer throws a

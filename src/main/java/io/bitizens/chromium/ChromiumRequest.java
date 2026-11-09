@@ -1,9 +1,8 @@
 package io.bitizens.chromium;
 
-import io.bitizens.common.Cookie;
 import io.bitizens.common.DeliveredRequest;
 import io.bitizens.common.EmulatedMediaType;
-import io.bitizens.core.Multipart;
+import io.bitizens.internal.Multipart;
 import org.json.JSONArray;
 import org.json.JSONObject;
 

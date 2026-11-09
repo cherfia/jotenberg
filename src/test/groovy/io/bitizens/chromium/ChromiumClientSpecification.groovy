@@ -2,7 +2,6 @@ package io.bitizens.chromium
 
 import io.bitizens.GotenbergStub
 import io.bitizens.Jotenberg
-import io.bitizens.common.Cookie
 import io.bitizens.common.EmulatedMediaType
 import io.bitizens.common.FileInput
 import io.bitizens.common.PaperSize

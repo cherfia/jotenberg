@@ -2,7 +2,7 @@ package io.bitizens.pdf;
 
 import io.bitizens.common.FileInput;
 import io.bitizens.common.Request;
-import io.bitizens.core.Multipart;
+import io.bitizens.internal.Multipart;
 
 import java.nio.file.Path;
 import java.util.ArrayList;

@@ -1,4 +1,7 @@
-package io.bitizens.core;
+package io.bitizens.internal;
+
+import io.bitizens.core.GotenbergException;
+import io.bitizens.core.JotenbergException;
 
 import java.io.IOException;
 import java.net.URI;
@@ -12,6 +15,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
+ * Internal: not part of Jotenberg's public API, and not exported by its module.
+ * <p>
  * Transport sends requests to Gotenberg: it resolves routes against the endpoint, adds the authentication and
  * custom headers, and turns error answers into {@link GotenbergException}s.
  */

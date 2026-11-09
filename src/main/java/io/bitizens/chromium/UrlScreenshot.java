@@ -1,6 +1,6 @@
 package io.bitizens.chromium;
 
-import io.bitizens.core.Multipart;
+import io.bitizens.internal.Multipart;
 
 /**
  * UrlScreenshot captures an image of a web page.

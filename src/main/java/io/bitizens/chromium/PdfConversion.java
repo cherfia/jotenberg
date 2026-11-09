@@ -2,14 +2,14 @@ package io.bitizens.chromium;
 
 import io.bitizens.common.FileInput;
 import io.bitizens.common.PaperSize;
-import io.bitizens.core.Multipart;
+import io.bitizens.internal.Lengths;
+import io.bitizens.internal.Multipart;
 import io.bitizens.pdf.Stage;
 import io.bitizens.pdf.StageUploads;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * PdfConversion holds the fields of the Chromium routes that print a PDF: the page layout, the header and footer,
@@ -160,11 +160,7 @@ public abstract class PdfConversion<T extends PdfConversion<T>> extends Chromium
         StageUploads.addStagesTo(form, stages);
     }
 
-    static String length(String field, String value) {
-        String trimmed = value.trim().toLowerCase(Locale.ROOT);
-        if (!trimmed.matches("\\d+(\\.\\d+)?(pt|px|in|mm|cm|pc)?")) {
-            throw new IllegalArgumentException(field + " takes a length such as \"8.5in\", \"210mm\" or \"72pt\", got " + value);
-        }
-        return trimmed;
+    private static String length(String field, String value) {
+        return Lengths.check(field, value);
     }
 }

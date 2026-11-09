@@ -1,6 +1,6 @@
 package io.bitizens.common;
 
-import io.bitizens.core.Multipart;
+import io.bitizens.internal.Multipart;
 
 import java.io.File;
 import java.io.IOException;

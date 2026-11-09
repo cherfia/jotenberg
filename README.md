@@ -382,7 +382,7 @@ The read methods take no webhook and no output filename.
 Health health = client.system().health();         // up, and each engine's status
 boolean up = client.system().isUp();              // HEAD /health
 String version = client.system().version();       // e.g. 9.2.0
-JSONObject debug = client.system().debug();       // needs --api-enable-debug-route
+Map<String, Object> debug = client.system().debug(); // needs --api-enable-debug-route
 ```
 
 ## Migrating from Jotenberg 2
@@ -423,7 +423,8 @@ Jotenberg 3 targets Gotenberg 9 and its API is new; most changes follow
 | `DownloadFrom` `field`                                            | Removed: name the download in a stage with `StageFile.named(…)`                              |
 | `new Jotenberg(endpoint)` throwing `MalformedURLException`        | Throws `IllegalArgumentException`                                                            |
 
-Jotenberg no longer depends on Apache HttpClient: it uses the JDK's `java.net.http`.
+Jotenberg no longer depends on Apache HttpClient: it uses the JDK's `java.net.http`. It ships as the Java module
+`io.bitizens.jotenberg`; `Cookie` moved to `io.bitizens.chromium`.
 
 Jotenberg 2 sent the previous request's files and fields again on each later request of the same client. Jotenberg 3
 sends each request on its own.

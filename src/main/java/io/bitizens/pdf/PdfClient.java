@@ -1,7 +1,7 @@
 package io.bitizens.pdf;
 
-import io.bitizens.core.Multipart;
-import io.bitizens.core.Transport;
+import io.bitizens.internal.Multipart;
+import io.bitizens.internal.Transport;
 import org.json.JSONArray;
 import org.json.JSONObject;
 

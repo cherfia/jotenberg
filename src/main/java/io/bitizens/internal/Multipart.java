@@ -1,4 +1,4 @@
-package io.bitizens.core;
+package io.bitizens.internal;
 
 import java.io.FileNotFoundException;
 import java.io.UncheckedIOException;
@@ -14,6 +14,8 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
+ * Internal: not part of Jotenberg's public API, and not exported by its module.
+ * <p>
  * Multipart is a builder for a {@code multipart/form-data} request body. Files on disk are streamed, not
  * read into memory.
  */

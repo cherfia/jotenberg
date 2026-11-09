@@ -1,7 +1,7 @@
 package io.bitizens.chromium;
 
 import io.bitizens.common.FileInput;
-import io.bitizens.core.Multipart;
+import io.bitizens.internal.Multipart;
 
 import java.nio.file.Path;
 

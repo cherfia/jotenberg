@@ -1,6 +1,6 @@
 package io.bitizens.common;
 
-import io.bitizens.core.Multipart;
+import io.bitizens.internal.Multipart;
 import org.json.JSONArray;
 
 import java.nio.file.Path;
@@ -73,7 +73,7 @@ public abstract class Request<T extends Request<T>> {
      *
      * @param form The form.
      */
-    public void addInputsTo(Multipart form) {
+    protected void addInputsTo(Multipart form) {
         archives.forEach(archive -> archive.addTo(form, "archives"));
         if (!downloadFrom.isEmpty()) {
             JSONArray entries = new JSONArray();

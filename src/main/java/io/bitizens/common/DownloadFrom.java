@@ -52,7 +52,7 @@ public final class DownloadFrom {
     /**
      * @return The entry as Gotenberg's {@code downloadFrom} field takes it.
      */
-    public JSONObject toJson() {
+    JSONObject toJson() {
         JSONObject json = new JSONObject();
         json.put("url", url);
         if (!extraHttpHeaders.isEmpty()) {

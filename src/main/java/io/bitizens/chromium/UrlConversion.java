@@ -1,6 +1,6 @@
 package io.bitizens.chromium;
 
-import io.bitizens.core.Multipart;
+import io.bitizens.internal.Multipart;
 
 /**
  * UrlConversion prints a PDF of a web page.

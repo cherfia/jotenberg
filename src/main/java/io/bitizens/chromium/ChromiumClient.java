@@ -1,7 +1,7 @@
 package io.bitizens.chromium;
 
-import io.bitizens.core.Multipart;
-import io.bitizens.core.Transport;
+import io.bitizens.internal.Multipart;
+import io.bitizens.internal.Transport;
 
 /**
  * ChromiumClient wraps Gotenberg's Chromium routes: it prints URLs, HTML and Markdown to PDF, and captures them as

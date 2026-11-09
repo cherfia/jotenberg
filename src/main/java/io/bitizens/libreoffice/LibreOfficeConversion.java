@@ -3,7 +3,7 @@ package io.bitizens.libreoffice;
 import io.bitizens.common.DeliveredRequest;
 import io.bitizens.common.FileInput;
 import io.bitizens.common.PaperSize;
-import io.bitizens.core.Multipart;
+import io.bitizens.internal.Multipart;
 import io.bitizens.pdf.ConformanceProfile;
 import io.bitizens.pdf.Stage;
 import io.bitizens.pdf.StageUploads;

@@ -1,4 +1,4 @@
-package io.bitizens.common;
+package io.bitizens.chromium;
 
 import org.json.JSONObject;
 
@@ -54,7 +54,7 @@ public final class Cookie {
     /**
      * @return The cookie as Gotenberg's {@code cookies} field takes it.
      */
-    public JSONObject toJson() {
+    JSONObject toJson() {
         return new JSONObject(json.toMap());
     }
 }

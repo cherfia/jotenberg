@@ -1,7 +1,7 @@
 package io.bitizens.pdf
 
 import io.bitizens.common.PaperSize
-import io.bitizens.core.Multipart
+import io.bitizens.internal.Multipart
 import org.json.JSONArray
 import org.json.JSONObject
 import spock.lang.Specification

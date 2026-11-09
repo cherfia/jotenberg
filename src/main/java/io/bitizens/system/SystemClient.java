@@ -1,7 +1,7 @@
 package io.bitizens.system;
 
 import io.bitizens.core.GotenbergException;
-import io.bitizens.core.Transport;
+import io.bitizens.internal.Transport;
 import org.json.JSONObject;
 
 import java.net.http.HttpResponse;
@@ -28,10 +28,10 @@ public final class SystemClient {
      */
     public Health health() {
         try {
-            return Health.fromJson(new JSONObject(text(transport.fetch("health", "GET", Map.of()))));
+            return Health.fromJson(parse(text(transport.fetch("health", "GET", Map.of()))));
         } catch (GotenbergException e) {
             if (e.status() == 503) {
-                return Health.fromJson(new JSONObject(e.body()));
+                return Health.fromJson(parse(e.body()));
             }
             throw e;
         }
@@ -61,10 +61,14 @@ public final class SystemClient {
      * Reads the modules, the engine versions and every flag. Gotenberg answers 404 until
      * {@code --api-enable-debug-route} is on.
      *
-     * @return The debug report.
+     * @return The debug report, as nested maps and lists.
      */
-    public JSONObject debug() {
-        return new JSONObject(text(transport.fetch("debug", "GET", Map.of())));
+    public Map<String, Object> debug() {
+        return parse(text(transport.fetch("debug", "GET", Map.of()))).toMap();
+    }
+
+    private static JSONObject parse(String body) {
+        return new JSONObject(body);
     }
 
     private static String text(HttpResponse<byte[]> response) {
