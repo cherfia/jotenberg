@@ -37,11 +37,19 @@ public abstract class Stage {
     }
 
     final void put(String key, Object value) {
-        options.put(key, value);
+        if (value == null) {
+            options.remove(key);
+        } else {
+            options.put(key, value);
+        }
     }
 
     final void putFile(String key, StageFile file) {
-        files.put(key, file);
+        if (file == null) {
+            files.remove(key);
+        } else {
+            files.put(key, file);
+        }
     }
 
     /**

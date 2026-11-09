@@ -3,6 +3,7 @@ package io.bitizens.libreoffice;
 import io.bitizens.common.DeliveredRequest;
 import io.bitizens.common.FileInput;
 import io.bitizens.common.PaperSize;
+import io.bitizens.internal.Lengths;
 import io.bitizens.internal.Multipart;
 import io.bitizens.pdf.ConformanceProfile;
 import io.bitizens.pdf.Stage;
@@ -69,7 +70,11 @@ public final class LibreOfficeConversion extends DeliveredRequest<LibreOfficeCon
     }
 
     private LibreOfficeConversion set(String name, Object value) {
-        fields.put(name, String.valueOf(value));
+        if (value == null) {
+            fields.remove(name);
+        } else {
+            fields.put(name, String.valueOf(value));
+        }
         return this;
     }
 
@@ -85,12 +90,12 @@ public final class LibreOfficeConversion extends DeliveredRequest<LibreOfficeCon
 
     /** @param width Overrides the width, such as {@code "210mm"}; without a paper size, set the height too. @return This conversion. */
     public LibreOfficeConversion paperWidth(String width) {
-        return set("paperWidth", width);
+        return set("paperWidth", width == null ? null : Lengths.check("paperWidth", width));
     }
 
     /** @param height Overrides the height, such as {@code "297mm"}. @return This conversion. */
     public LibreOfficeConversion paperHeight(String height) {
-        return set("paperHeight", height);
+        return set("paperHeight", height == null ? null : Lengths.check("paperHeight", height));
     }
 
     /** @param landscape Turns the pages sideways. @return This conversion. */
@@ -304,6 +309,9 @@ public final class LibreOfficeConversion extends DeliveredRequest<LibreOfficeCon
 
     /** @param levels How many bookmark levels a viewer expands, 1 to 10, or -1 for all. @return This conversion. */
     public LibreOfficeConversion openBookmarkLevels(int levels) {
+        if (levels != -1 && (levels < 1 || levels > 10)) {
+            throw new IllegalArgumentException("openBookmarkLevels takes -1, or 1 to 10, got " + levels);
+        }
         return set("openBookmarkLevels", levels);
     }
 

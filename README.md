@@ -168,7 +168,7 @@ try {
 }
 ```
 
-A `JotenbergException` means Gotenberg couldn't be reached. Options Gotenberg would refuse, such as a quality of 0,
+A `JotenbergException` means Gotenberg couldn't be reached, or answered something other than the JSON a read route expects. Options Gotenberg would refuse, such as a quality of 0,
 throw an `IllegalArgumentException` before the request is sent.
 
 ## Chromium
@@ -324,7 +324,7 @@ byte[] signed = pdf.sign(PdfRequest.of(Path.of("contract.pdf")),
 byte[] invoice = pdf.remediate(PdfRequest.of(Path.of("invoice.pdf")),
         Stage.remediate(ConformanceProfile.FACTUR_X)
                 .facturX(StageFile.of(Path.of("factur-x.xml")), FacturXLevel.EN_16931));
-String text = pdf.extractText(PdfRequest.of(Path.of("report.pdf")), Stage.extractText().pages("1"));
+byte[] text = pdf.extractText(PdfRequest.of(Path.of("report.pdf")), Stage.extractText().pages("1")); // UTF-8; a ZIP for several PDFs
 ```
 
 `PdfRequest.of(FileInput.of(bytes, "1-cover.pdf"))` sends in-memory PDFs under the names you choose.

@@ -1,7 +1,9 @@
 package io.bitizens.system;
 
 import io.bitizens.core.GotenbergException;
+import io.bitizens.core.JotenbergException;
 import io.bitizens.internal.Transport;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.http.HttpResponse;
@@ -40,12 +42,12 @@ public final class SystemClient {
     /**
      * Checks that Gotenberg is up with a lightweight {@code HEAD /health}.
      *
-     * @return Whether Gotenberg answered 200.
+     * @return Whether Gotenberg answered 200; {@code false} when it answered an error or couldn't be reached.
      */
     public boolean isUp() {
         try {
             return transport.fetch("health", "HEAD", Map.of()).statusCode() == 200;
-        } catch (GotenbergException e) {
+        } catch (GotenbergException | JotenbergException e) {
             return false;
         }
     }
@@ -68,7 +70,11 @@ public final class SystemClient {
     }
 
     private static JSONObject parse(String body) {
-        return new JSONObject(body);
+        try {
+            return new JSONObject(body);
+        } catch (JSONException e) {
+            throw new JotenbergException("Gotenberg answered something other than JSON: " + body, e);
+        }
     }
 
     private static String text(HttpResponse<byte[]> response) {

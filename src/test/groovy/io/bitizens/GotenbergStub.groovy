@@ -99,16 +99,22 @@ class GotenbergStub implements AutoCloseable {
             }
             def body = chunk.substring(2) // leading CRLF
             int headerEnd = body.indexOf('\r\n\r\n')
-            def headers = body.substring(0, headerEnd)
+            // headers are UTF-8, with quotes and backslashes escaped
+            def headers = new String(body.substring(0, headerEnd).getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8)
             def content = body.substring(headerEnd + 4, body.length() - 2) // trailing CRLF
-            def name = (headers =~ /name="([^"]*)"/)[0][1]
-            def filenameMatch = headers =~ /filename="([^"]*)"/
+            def quoted = /"((?:[^"\\]|\\.)*)"/
+            def name = unescape((headers =~ /; name=${quoted}/)[0][1])
+            def filenameMatch = headers =~ /filename=${quoted}/
             parts << new Part(
                     name: name,
-                    filename: filenameMatch.find() ? filenameMatch.group(1) : null,
+                    filename: filenameMatch.find() ? unescape(filenameMatch.group(1)) : null,
                     content: content.getBytes(StandardCharsets.ISO_8859_1))
         }
         parts
+    }
+
+    private static String unescape(String value) {
+        value.replaceAll(/\\(.)/, '\$1')
     }
 
     @Override

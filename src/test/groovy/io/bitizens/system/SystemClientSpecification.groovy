@@ -56,6 +56,26 @@ class SystemClientSpecification extends Specification {
         !system.isUp()
     }
 
+    def "should report false, not throw, when Gotenberg can't be reached"() {
+        given:
+        def port = stub.server.address.port
+        stub.close()
+
+        expect:
+        !new Jotenberg("http://127.0.0.1:${port}").system().isUp()
+    }
+
+    def "should turn a health answer that isn't JSON into a JotenbergException"() {
+        given:
+        stub.answer(503, 'Service Unavailable')
+
+        when:
+        system.health()
+
+        then:
+        thrown(io.bitizens.core.JotenbergException)
+    }
+
     def "should read the version"() {
         given:
         stub.answer(200, '9.2.0\n')

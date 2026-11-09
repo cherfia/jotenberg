@@ -165,6 +165,21 @@ class StageSpecification extends Specification {
         fieldValue(form, 'op') == null
     }
 
+    def "should unset a stage option set to null, on both routes"() {
+        given:
+        def stage = Stage.encrypt().userPassword('open').ownerPassword('owner').ownerPassword(null)
+        def form = new Multipart()
+
+        when:
+        def json = stagesJson([stage]).getJSONObject(0)
+        StageUploads.addStageFieldsTo(form, stage)
+
+        then:
+        json.similar(new JSONObject([op: 'encrypt', userPassword: 'open']))
+        fieldValue(form, 'ownerPassword') == null
+        fieldValue(form, 'userPassword') == 'open'
+    }
+
     def "should validate options Gotenberg would refuse"() {
         when:
         stagesJson([stage])

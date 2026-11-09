@@ -132,6 +132,31 @@ class JotenbergSpecification extends Specification {
         thrown(JotenbergException)
     }
 
+    def "should escape quotes and keep non-ASCII characters in file names"() {
+        given:
+        def client = new Jotenberg(stub.endpoint)
+
+        when:
+        client.pdf().merge(PdfRequest.of(io.bitizens.common.FileInput.of('%PDF'.bytes, 'facture "été".pdf')))
+
+        then:
+        stub.last.fileNames() == ['facture "été".pdf']
+    }
+
+    def "should close without closing a caller's HTTP client"() {
+        given:
+        def httpClient = java.net.http.HttpClient.newHttpClient()
+        def client = Jotenberg.builder().endpoint(stub.endpoint).httpClient(httpClient).build()
+
+        when:
+        client.close()
+        new Jotenberg(stub.endpoint).close()
+        Jotenberg.builder().endpoint(stub.endpoint).httpClient(httpClient).build().system().version()
+
+        then:
+        noExceptionThrown()
+    }
+
     def "should stream files from disk"() {
         given:
         def dir = Files.createTempDirectory('jotenberg')

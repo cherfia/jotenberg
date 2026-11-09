@@ -1,8 +1,10 @@
 package io.bitizens.pdf;
 
+import io.bitizens.core.JotenbergException;
 import io.bitizens.internal.Multipart;
 import io.bitizens.internal.Transport;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.nio.charset.StandardCharsets;
@@ -180,9 +182,12 @@ public final class PdfClient {
         return run(request, extract);
     }
 
-    /** Returns the text the pages show, its pages separated by a form feed. */
-    public String extractText(PdfRequest request, Stage.ExtractText extract) {
-        return new String(run(request, extract), StandardCharsets.UTF_8);
+    /**
+     * Returns the text the pages show, as UTF-8 with its pages separated by a form feed; several PDFs answer a ZIP of
+     * the text files.
+     */
+    public byte[] extractText(PdfRequest request, Stage.ExtractText extract) {
+        return run(request, extract);
     }
 
     /** Rewrites the PDF to shrink it, without lowering image quality. */
@@ -276,12 +281,16 @@ public final class PdfClient {
         request.addTo(form);
         fields.forEach(form::field);
         byte[] body = transport.post(PATH + route, form, request.headers());
-        JSONObject json = new JSONObject(new String(body, StandardCharsets.UTF_8));
-        Map<String, T> result = new LinkedHashMap<>();
-        for (String name : json.keySet()) {
-            result.put(name, parse.apply(json.get(name)));
+        try {
+            JSONObject json = new JSONObject(new String(body, StandardCharsets.UTF_8));
+            Map<String, T> result = new LinkedHashMap<>();
+            for (String name : json.keySet()) {
+                result.put(name, parse.apply(json.get(name)));
+            }
+            return result;
+        } catch (JSONException | ClassCastException e) {
+            throw new JotenbergException("Gotenberg answered " + route + " with unexpected JSON", e);
         }
-        return result;
     }
 
     private static <T> List<T> list(JSONArray array, Function<JSONObject, T> parse) {

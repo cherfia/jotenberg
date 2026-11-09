@@ -1,6 +1,7 @@
 package io.bitizens;
 
 import io.bitizens.chromium.ChromiumClient;
+import io.bitizens.core.JotenbergException;
 import io.bitizens.internal.Transport;
 import io.bitizens.libreoffice.LibreOfficeClient;
 import io.bitizens.pdf.PdfClient;
@@ -31,6 +32,7 @@ public final class Jotenberg implements AutoCloseable {
     public static final String HOSTED_API_ENDPOINT = "https://api.chromiumly.dev";
 
     private final Transport transport;
+    private final HttpClient ownHttpClient;
     private final ChromiumClient chromium;
     private final LibreOfficeClient libreOffice;
     private final PdfClient pdf;
@@ -44,7 +46,9 @@ public final class Jotenberg implements AutoCloseable {
     }
 
     private Jotenberg(Builder builder) {
-        this.transport = new Transport(builder.httpClient(), builder.resolveEndpoint(), builder.headers(), builder.timeout);
+        HttpClient httpClient = builder.httpClient != null ? builder.httpClient : defaultHttpClient();
+        this.ownHttpClient = builder.httpClient == null ? httpClient : null;
+        this.transport = new Transport(httpClient, builder.resolveEndpoint(), builder.headers(), builder.timeout);
         this.chromium = new ChromiumClient(transport);
         this.libreOffice = new LibreOfficeClient(transport);
         this.pdf = new PdfClient(transport);
@@ -122,10 +126,22 @@ public final class Jotenberg implements AutoCloseable {
     }
 
     /**
-     * Kept for try-with-resources; the client holds no resources that need closing.
+     * Closes the HTTP client Jotenberg created, where the JDK lets it (Java 21 and later). A client passed to
+     * {@link Builder#httpClient} is left open: its owner closes it.
      */
     @Override
     public void close() {
+        if (ownHttpClient instanceof AutoCloseable closeable) {
+            try {
+                closeable.close();
+            } catch (Exception e) {
+                throw new JotenbergException("Could not close the HTTP client", e);
+            }
+        }
+    }
+
+    private static HttpClient defaultHttpClient() {
+        return HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NORMAL).build();
     }
 
     /**
@@ -241,10 +257,5 @@ public final class Jotenberg implements AutoCloseable {
             return all;
         }
 
-        private HttpClient httpClient() {
-            return httpClient != null ? httpClient : HttpClient.newBuilder()
-                    .followRedirects(HttpClient.Redirect.NORMAL)
-                    .build();
-        }
     }
 }

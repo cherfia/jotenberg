@@ -139,8 +139,31 @@ class LibreOfficeClientSpecification extends Specification {
         where:
         build << [
                 { LibreOfficeConversion.of(new Path[0]).nativeQuality(0) },
-                { LibreOfficeConversion.of(new Path[0]).nativeReduceImageResolution(100) }
+                { LibreOfficeConversion.of(new Path[0]).nativeReduceImageResolution(100) },
+                { LibreOfficeConversion.of(new Path[0]).paperWidth('ten') },
+                { LibreOfficeConversion.of(new Path[0]).paperHeight('-1in') },
+                { LibreOfficeConversion.of(new Path[0]).openBookmarkLevels(0) },
+                { LibreOfficeConversion.of(new Path[0]).openBookmarkLevels(11) }
         ]
+    }
+
+    def "should accept the bookmark levels Gotenberg takes"() {
+        when:
+        libreOffice.convert(LibreOfficeConversion.of(file('report.docx')).openBookmarkLevels(levels).paperWidth('210mm').paperHeight('297MM'))
+
+        then:
+        stub.last.fields() == [openBookmarkLevels: "${levels}".toString(), paperWidth: '210mm', paperHeight: '297mm']
+
+        where:
+        levels << [-1, 1, 10]
+    }
+
+    def "should unset an option set to null, not send the string null"() {
+        when:
+        libreOffice.convert(LibreOfficeConversion.of(file('report.docx')).password('open').password(null).nativeWatermarkFont(null))
+
+        then:
+        stub.last.fields() == [:]
     }
 
     def "should send stages to run on the exported PDFs"() {

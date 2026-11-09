@@ -222,11 +222,34 @@ class PdfClientSpecification extends Specification {
         stub.last.fields() == [profile: 'PDF/A-3b']
     }
 
-    def "should return extracted text as a string"() {
-        given:
+    def "should return extracted text as bytes, and several PDFs' text as a ZIP, intact"() {
+        when:
         stub.answer(200, 'Page one\fPage two')
 
-        expect:
-        pdf.extractText(PdfRequest.of(report), Stage.extractText().pages('1-2')) == 'Page one\fPage two'
+        then:
+        new String(pdf.extractText(PdfRequest.of(report), Stage.extractText().pages('1-2')), 'UTF-8') == 'Page one\fPage two'
+
+        when:
+        def zip = [0x50, 0x4B, 0x03, 0x04, 0xFF, 0xFE] as byte[]
+        stub.body = zip
+        def annex = dir.resolve('annex.pdf')
+        Files.write(annex, '%PDF-1.7 annex'.bytes)
+
+        then:
+        pdf.extractText(PdfRequest.of(report, annex), Stage.extractText()) == zip
+    }
+
+    def "should turn a read answer that isn't the expected JSON into a JotenbergException"() {
+        given:
+        stub.answer(200, body)
+
+        when:
+        pdf.info(PdfRead.of(report))
+
+        then:
+        thrown(io.bitizens.core.JotenbergException)
+
+        where:
+        body << ['<html>proxy error</html>', '{"report.pdf":[]}']
     }
 }
