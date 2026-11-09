@@ -94,7 +94,7 @@ public final class Transport {
         }
         Map<String, String> all = new LinkedHashMap<>(headers);
         all.putAll(requestHeaders);
-        all.forEach(request::header);
+        all.forEach((name, value) -> request.header(name, Headers.check(name, value)));
         return request;
     }
 

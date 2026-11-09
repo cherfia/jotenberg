@@ -1,5 +1,7 @@
 package io.bitizens.common;
 
+import io.bitizens.internal.Headers;
+
 import java.util.Map;
 
 /**
@@ -25,11 +27,13 @@ public abstract class DeliveredRequest<T extends DeliveredRequest<T>> extends Re
     /**
      * Names the result. Gotenberg adds the extension.
      *
-     * @param outputFilename The name, without extension; sent as {@code Gotenberg-Output-Filename}.
+     * @param outputFilename The name, without extension, in printable ASCII; sent as
+     *                       {@code Gotenberg-Output-Filename}. For a non-ASCII name, write the result under it with
+     *                       {@link io.bitizens.core.GotenbergResult#writeTo}.
      * @return This request.
      */
     public T outputFilename(String outputFilename) {
-        this.outputFilename = outputFilename;
+        this.outputFilename = outputFilename == null ? null : Headers.check("Gotenberg-Output-Filename", outputFilename);
         return self();
     }
 

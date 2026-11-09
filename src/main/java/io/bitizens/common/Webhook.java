@@ -1,5 +1,6 @@
 package io.bitizens.common;
 
+import io.bitizens.internal.Headers;
 import org.json.JSONObject;
 
 import java.util.LinkedHashMap;
@@ -68,7 +69,7 @@ public final class Webhook {
             headers.put("Gotenberg-Webhook-Method", method.name());
         }
         if (!extraHttpHeaders.isEmpty()) {
-            headers.put("Gotenberg-Webhook-Extra-Http-Headers", new JSONObject(extraHttpHeaders).toString());
+            headers.put("Gotenberg-Webhook-Extra-Http-Headers", Headers.asciiJson(new JSONObject(extraHttpHeaders).toString()));
         }
         return headers;
     }

@@ -378,6 +378,9 @@ GotenbergResult merged = client.pdf().merge(PdfRequest.of(Path.of("cover.pdf"))
         .trace("request-42"));                                      // Gotenberg-Trace
 ```
 
+`outputFilename` and `trace` are sent as headers, which the JDK's HTTP client can only send in ASCII: a value outside
+printable ASCII throws an `IllegalArgumentException` instead of reaching Gotenberg corrupted. For a non-ASCII file name,
+write the result under it: `result.writeTo(Path.of("facture-été.pdf"))`.
 
 ### Webhooks
 

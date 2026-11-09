@@ -1,5 +1,6 @@
 package io.bitizens.common;
 
+import io.bitizens.internal.Headers;
 import io.bitizens.internal.Multipart;
 import org.json.JSONArray;
 
@@ -60,11 +61,11 @@ public abstract class Request<T extends Request<T>> {
     /**
      * Identifies the request in Gotenberg's logs, and in webhook events as {@code correlationId}.
      *
-     * @param trace The request id, sent as {@code Gotenberg-Trace}.
+     * @param trace The request id, in printable ASCII; sent as {@code Gotenberg-Trace}.
      * @return This request.
      */
     public T trace(String trace) {
-        this.trace = trace;
+        this.trace = trace == null ? null : Headers.check("Gotenberg-Trace", trace);
         return self();
     }
 

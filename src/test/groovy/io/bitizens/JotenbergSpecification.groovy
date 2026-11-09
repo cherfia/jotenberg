@@ -157,6 +157,48 @@ class JotenbergSpecification extends Specification {
         noExceptionThrown()
     }
 
+    def "should refuse header values the HTTP client would corrupt, before sending"() {
+        when:
+        build()
+
+        then:
+        def e = thrown(IllegalArgumentException)
+        e.message.contains('printable ASCII')
+
+        where:
+        build << [
+                { PdfRequest.of(new java.nio.file.Path[0]).outputFilename('facture-été') },
+                { PdfRequest.of(new java.nio.file.Path[0]).trace('trace\n2') },
+                { UrlConversion.of('https://example.com').trace('été') }
+        ]
+    }
+
+    def "should refuse a non-ASCII custom header when sending"() {
+        given:
+        def client = Jotenberg.builder().endpoint(stub.endpoint).header('X-Note', 'été').build()
+
+        when:
+        client.system().version()
+
+        then:
+        thrown(IllegalArgumentException)
+        stub.requests.isEmpty()
+    }
+
+    def "should send non-ASCII webhook extra headers as escaped JSON"() {
+        given:
+        def client = new Jotenberg(stub.endpoint)
+
+        when:
+        client.chromium().convert(UrlConversion.of('https://example.com')
+                .webhook(io.bitizens.common.Webhook.of('https://example.com/upload', 'https://example.com/events').extraHttpHeader('X-Note', 'été')))
+
+        then:
+        def header = stub.last.header('Gotenberg-Webhook-Extra-Http-Headers')
+        header == '{"X-Note":"\\u00e9t\\u00e9"}'
+        new org.json.JSONObject(header).getString('X-Note') == 'été'
+    }
+
     def "should stream files from disk"() {
         given:
         def dir = Files.createTempDirectory('jotenberg')
